@@ -1,5 +1,9 @@
 @extends('master.index')
 
+@section('title')
+<title>Skripsi - Homepage</title>
+@endsection
+
 @section('content')
 <div class="container-fluid">
     <div class="row bg-title">
