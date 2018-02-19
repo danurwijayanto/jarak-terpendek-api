@@ -16,5 +16,5 @@ Route::get('/', function () {
 });
 
 Route::get('/admin', function () {
-    return view('app');
+    return view('content.homepage.index');
 });
