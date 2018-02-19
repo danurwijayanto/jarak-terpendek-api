@@ -13,9 +13,13 @@ namespace Symfony\Thanks\Command;
 
 use Composer\Command\BaseCommand;
 use Composer\Composer;
+use Composer\Downloader\TransportException;
 use Composer\Json\JsonFile;
 use Composer\Util\RemoteFilesystem;
 use Composer\Factory;
+use Composer\Plugin\PluginEvents;
+use Composer\Plugin\PreFileDownloadEvent;
+use Hirak\Prestissimo\CurlRemoteFilesystem;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -92,14 +96,14 @@ class ThanksCommand extends BaseCommand
         ],
     ];
 
-    private $star = '⭐ ';
-    private $heart = '💖';
+    private $star = '★ ';
+    private $love = '💖 ';
 
     protected function configure()
     {
         if ('\\' === DIRECTORY_SEPARATOR) {
             $this->star = '*';
-            $this->heart = '<3';
+            $this->love = '<3';
         }
 
         $this->setName('thanks')
@@ -190,20 +194,33 @@ class ThanksCommand extends BaseCommand
             }
         }
 
-        $output->writeln(sprintf("\nThanks to you! %s", $this->heart));
+        $output->writeln(sprintf("\nThanks to you! %s", $this->love));
 
         return 0;
     }
 
     private function callGitHub(RemoteFilesystem $rfs, $graphql)
     {
+        if ($eventDispatcher = $this->getComposer()->getEventDispatcher()) {
+            $preFileDownloadEvent = new PreFileDownloadEvent(PluginEvents::PRE_FILE_DOWNLOAD, $rfs, 'https://api.github.com/graphql');
+            $eventDispatcher->dispatch($preFileDownloadEvent->getName(), $preFileDownloadEvent);
+            if (!$preFileDownloadEvent->getRemoteFilesystem() instanceof CurlRemoteFilesystem) {
+                $rfs = $preFileDownloadEvent->getRemoteFilesystem();
+            }
+        }
+
         $result = $rfs->getContents('github.com', 'https://api.github.com/graphql', false, [
             'http' => [
                 'method' => 'POST',
                 'content' => json_encode(['query' => $graphql]),
+                'header' => ['Content-Type: application/json'],
             ],
         ]);
         $result = json_decode($result, true);
+
+        if (isset($result['errors'][0]['message'])) {
+            throw new TransportException($result['errors'][0]['message']);
+        }
 
         return $result['data'];
     }

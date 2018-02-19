@@ -34,7 +34,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      */
     protected static $proxies = [
         'average', 'avg', 'contains', 'each', 'every', 'filter', 'first', 'flatMap',
-        'keyBy', 'map', 'partition', 'reject', 'sortBy', 'sortByDesc', 'sum',
+        'keyBy', 'map', 'partition', 'reject', 'sortBy', 'sortByDesc', 'sum', 'unique',
     ];
 
     /**
@@ -644,7 +644,11 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      */
     public function get($key, $default = null)
     {
-        return Arr::get($this->items, $key, $default);
+        if ($this->offsetExists($key)) {
+            return $this->items[$key];
+        }
+
+        return value($default);
     }
 
     /**
@@ -884,11 +888,21 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      */
     public function mapToDictionary(callable $callback)
     {
-        $dictionary = $this->map($callback)->reduce(function ($groups, $pair) {
-            $groups[key($pair)][] = reset($pair);
+        $dictionary = [];
 
-            return $groups;
-        }, []);
+        foreach ($this->items as $key => $item) {
+            $pair = $callback($item, $key);
+
+            $key = key($pair);
+
+            $value = reset($pair);
+
+            if (! isset($dictionary[$key])) {
+                $dictionary[$key] = [];
+            }
+
+            $dictionary[$key][] = $value;
+        }
 
         return new static($dictionary);
     }
@@ -1088,14 +1102,18 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Partition the collection into two arrays using the given callback or key.
      *
-     * @param  callable|string  $callback
+     * @param  callable|string  $key
+     * @param  mixed  $operator
+     * @param  mixed  $value
      * @return static
      */
-    public function partition($callback)
+    public function partition($key, $operator = null, $value = null)
     {
         $partitions = [new static, new static];
 
-        $callback = $this->valueRetriever($callback);
+        $callback = func_num_args() == 1
+                ? $this->valueRetriever($key)
+                : $this->operatorForWhere(...func_get_args());
 
         foreach ($this->items as $key => $item) {
             $partitions[(int) ! $callback($item, $key)][$key] = $item;
@@ -1507,10 +1525,6 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      */
     public function unique($key = null, $strict = false)
     {
-        if (is_null($key)) {
-            return new static(array_unique($this->items, SORT_REGULAR));
-        }
-
         $callback = $this->valueRetriever($key);
 
         $exists = [];
