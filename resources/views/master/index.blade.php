@@ -11,7 +11,6 @@
     <!-- Bootstrap Core CSS -->
     @include('master.metaheader')
 </head>
-@include('master.header')
 @include('master.body')
 @include('master.footer')
 
