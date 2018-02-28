@@ -16,6 +16,8 @@ class IntermediatePlaceDetails extends Migration
         Schema::create('code_detail', function (Blueprint $table) {
             $table->unsignedInteger('pc_id');
             $table->unsignedInteger('pd_id');
+
+            $table->softDeletes();
             $table->timestamps();
         });
     }

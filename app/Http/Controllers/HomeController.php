@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Model\PlaceCode;
+use App\Model\PlaceDetails;
 
 class HomeController extends Controller
 {
@@ -24,5 +26,11 @@ class HomeController extends Controller
     public function index()
     {
         return view('home');
+    }
+
+    public function test(){
+        $get_data = PlaceCode::where('pc_id', 1)->with('details')->get();
+
+        dd($get_data->toArray());
     }
 }

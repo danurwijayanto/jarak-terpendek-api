@@ -25,3 +25,5 @@ Route::prefix('admin')->group(function () {
 
 });
 
+route::get('test', 'HomeController@test');
+

@@ -16,6 +16,8 @@ class PlaceCode extends Migration
         Schema::create('place_code', function (Blueprint $table) {
             $table->increments('pc_id');
             $table->string('pc_name');
+
+            $table->softDeletes();
             $table->timestamps();
         });
     }

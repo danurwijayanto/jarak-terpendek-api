@@ -18,6 +18,8 @@ class PlaceDetails extends Migration
             $table->string('pd_name');
             $table->string('pd_longitude');
             $table->string('pd_latitude');
+
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -29,6 +31,6 @@ class PlaceDetails extends Migration
      */
     public function down()
     {
-        Schema::drop('place_code');
+        Schema::drop('place_detail');
     }
 }

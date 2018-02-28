@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use App\Model\PlaceCode;
 
@@ -14,7 +15,7 @@ class PlaceDetails extends Model
      *
      * @var string
      */
-    protected $table = 'place_details';
+    protected $table = 'place_detail';
 
     protected $primaryKey = 'pd_id';
 
@@ -37,6 +38,6 @@ class PlaceDetails extends Model
     */
     public function details()
     {
-        return $this->belongsToMany('PlaceCode', 'place_detail', 'pd_id', 'pc_id');
+        return $this->belongsToMany('App\Model\PlaceCode', 'code_detail', 'pd_id', 'pc_id');
     }
 }
