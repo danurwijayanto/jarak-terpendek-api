@@ -1,7 +1,7 @@
 @extends('master.index')
 
 @section('title')
-<title>Skripsi - Homepage</title>
+<title>Skripsi - Daftar Angkutan</title>
 @endsection
 
 @section('content')
