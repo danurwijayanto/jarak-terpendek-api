@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Model\PlaceCode;
 
 class AngkutanController extends Controller
 {
@@ -47,7 +48,11 @@ class AngkutanController extends Controller
     {
         $data = $request->all();
 
-        dd($data);
+        $insert = PlaceCode::insert(
+            ['pc_name' => $data['kode_angkutan']]
+        );
+
+        return view('content.angkutan.index');
     }
 
     /**
