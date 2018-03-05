@@ -22,6 +22,8 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::prefix('admin')->group(function () {
 
     Route::get('/home', 'Admin\HomeController@index');
+
+    Route::get('/angkutan/hapus/{id}', 'Admin\AngkutanController@destroy');
     Route::resource('/angkutan', 'Admin\AngkutanController');
     Route::resource('/lokasi', 'Admin\LokasiController');
 

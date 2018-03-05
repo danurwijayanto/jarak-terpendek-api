@@ -25,7 +25,16 @@ class AngkutanController extends Controller
      */
     public function index()
     {
-        return view('content.angkutan.index');
+        // Define
+        $data = array();
+        
+        // Get Data
+        $get_angkutan = PlaceCode::paginate(5);
+
+        // Mapping
+        $data['angkutan'] = $get_angkutan;
+
+        return view('content.angkutan.index', $data);
     }
 
     /**
@@ -35,7 +44,7 @@ class AngkutanController extends Controller
      */
     public function create()
     {
-        //
+       return 'create';
     }
 
     /**
@@ -63,7 +72,7 @@ class AngkutanController extends Controller
      */
     public function show($id)
     {
-        //
+        return 'show';
     }
 
     /**
@@ -74,7 +83,7 @@ class AngkutanController extends Controller
      */
     public function edit($id)
     {
-        //
+        return 'edit';
     }
 
     /**
@@ -86,7 +95,7 @@ class AngkutanController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        return 'update';
     }
 
     /**
@@ -97,6 +106,16 @@ class AngkutanController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // Variable
+        $id = !empty($id) ? $id : '';
+        $status = '';
+
+        // Action
+        $delete = PlaceCode::where('pc_id', $id)->delete();
+
+        $delete ? $status = 'Data berhasil dihapus' : $status = 'fail';
+
+        // Return
+        return redirect()->back()->with('alert', $status);
     }
 }
