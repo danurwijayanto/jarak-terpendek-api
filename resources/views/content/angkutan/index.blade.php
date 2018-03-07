@@ -55,7 +55,7 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $list->pc_name }}</td>
                                     <td>
-                                        <a href="#" class="btn btn-primary" role="button">Rubah</a>
+                                        <a href="#" class="btn btn-primary edit-angkutan" role="button" data-toggle="modal" data-target="#editAngkutan" data-detail='<?php echo json_encode(array("pc_id" => $list->pc_id, "pc_name" => $list->pc_name)); ?>'>Rubah</a>
                                         <a href="{{ url('admin/angkutan/hapus/'.$list->pc_id) }}" class="btn btn-danger" role="button">Hapus</a>
                                     </td>
                                 </tr>
@@ -69,7 +69,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal Tambah Angkutan-->
 <div id="tambahAngkutan" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -96,4 +96,51 @@
 
   </div>
 </div>
+
+<!-- Modal Edit Angkutan-->
+<div id="editAngkutan" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Edit Data Angkutan Kota <span id="modal-edit-identification"></span></h4>
+      </div>
+      <div class="modal-body">
+        <form action="#" method="GET" id="modal-edit-form">
+            @csrf
+            <div class="form-group">
+                <label for="email">Kode Angkutan Baru :</label>
+                <input type="text" class="form-control" name="kode_angkutan_edit">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+    $( document ).ready(function() {
+        $( ".edit-angkutan" ).click(function() {
+            // Retreive data
+            var data = $(this).data('detail');
+            
+            // Read Data
+            var pc_id = data['pc_id'];
+            var pc_name = data['pc_name'];
+            
+            // Action
+            $("#modal-edit-identification").html(': '+pc_name);
+            $("#modal-edit-form").attr('action', '{{ url("/admin/angkutan") }}/'+pc_id+'/edit');
+
+            console.log(pc_id);
+        });
+    });
+</script>
 @endsection

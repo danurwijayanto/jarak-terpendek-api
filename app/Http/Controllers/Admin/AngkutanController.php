@@ -83,7 +83,18 @@ class AngkutanController extends Controller
      */
     public function edit($id)
     {
-        return 'edit';
+        // Variable
+        $id = !empty($id) ? $id : '';
+        $pc_name = isset($_GET['kode_angkutan_edit']) ? $_GET['kode_angkutan_edit'] : '';
+        $status = '';
+
+        // Action
+        $edit = PlaceCode::where('pc_id', $id)->update(['pc_name' => $pc_name]);
+
+        $edit ? $status = 'Data berhasil dirubah' : $status = 'fail';
+
+        // Return
+        return redirect()->back()->with('alert', $status);
     }
 
     /**
