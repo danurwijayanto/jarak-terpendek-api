@@ -25,6 +25,8 @@ Route::prefix('admin')->group(function () {
 
     Route::get('/angkutan/hapus/{id}', 'Admin\AngkutanController@destroy');
     Route::resource('/angkutan', 'Admin\AngkutanController');
+    
+    Route::get('/lokasi/hapus/{id}', 'Admin\LokasiController@destroy');
     Route::resource('/lokasi', 'Admin\LokasiController');
 
 });

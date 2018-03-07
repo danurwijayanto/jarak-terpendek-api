@@ -56,12 +56,18 @@ class AngkutanController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
+        $status = '';
 
         $insert = PlaceCode::insert(
             ['pc_name' => $data['kode_angkutan']]
         );
 
-        return view('content.angkutan.index');
+        $insert ? $status = 'Data berhasil ditambah' : $status = 'fail';
+
+        // Return
+        return redirect()->back()->with('alert', $status);
+
+        //return view('content.angkutan.index');
     }
 
     /**

@@ -8,7 +8,7 @@
 <div class="container-fluid">
     <div class="row bg-title">
         <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
-            <h4 class="page-title">Angkutan Kota</h4> </div>
+            <h4 class="page-title">Daftar Angkutan Kota</h4> </div>
         
         <!--
         <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
@@ -39,7 +39,6 @@
                         {{ session('alert') }}
                     </div>
                 @endif
-                <h3 class="box-title">Data Angkutan</h3>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -50,6 +49,7 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @if (isset($angkutan) && count($angkutan) > 0)
                             @foreach ($angkutan as $list)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
@@ -60,10 +60,13 @@
                                     </td>
                                 </tr>
                             @endforeach
+                            @endif
                         </tbody>
                     </table>
                 </div>
+                @if (isset($angkutan) && count($angkutan) > 0)
                 {{ $angkutan->links() }}
+                @endif
             </div>
         </div>
     </div>
@@ -77,7 +80,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Tambah Data Angkutan Kota</h4>
+        <h4 class="modal-title">Tambah Daftar Angkutan Kota</h4>
       </div>
       <div class="modal-body">
         <form action="{{ url('/admin/angkutan') }}" method="POST">
@@ -112,7 +115,7 @@
             @csrf
             <div class="form-group">
                 <label for="email">Kode Angkutan Baru :</label>
-                <input type="text" class="form-control" name="kode_angkutan_edit">
+                <input type="text" class="form-control" name="kode_angkutan_edit" id="kode-angkutan-edit">
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
         </form>
@@ -136,10 +139,9 @@
             var pc_name = data['pc_name'];
             
             // Action
+            $("#kode-angkutan-edit").val(pc_name);
             $("#modal-edit-identification").html(': '+pc_name);
             $("#modal-edit-form").attr('action', '{{ url("/admin/angkutan") }}/'+pc_id+'/edit');
-
-            console.log(pc_id);
         });
     });
 </script>
