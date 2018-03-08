@@ -45,6 +45,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Nama</th>
+                                <th>Trayek</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -55,7 +56,14 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $list->pc_name }}</td>
                                     <td>
-                                        <a href="#" class="btn btn-primary edit-angkutan" role="button" data-toggle="modal" data-target="#editAngkutan" data-detail='<?php echo json_encode(array("pc_id" => $list->pc_id, "pc_name" => $list->pc_name)); ?>'>Rubah</a>
+                                        <ul>
+                                        @foreach ($list->details as $list_detail)
+                                        <li>{{ $list_detail->pd_name }}</li>
+                                        @endforeach
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <a href="#" class="btn btn-primary edit-angkutan" role="button" data-toggle="modal" data-target="#editAngkutan" data-trayek='{{ json_encode($list->details) }}' data-detail='{{ json_encode(array("pc_id" => $list->pc_id, "pc_name" => $list->pc_name)) }}'>Rubah</a>
                                         <a href="{{ url('admin/angkutan/hapus/'.$list->pc_id) }}" class="btn btn-danger" role="button">Hapus</a>
                                     </td>
                                 </tr>
@@ -147,7 +155,12 @@
         $( ".edit-angkutan" ).click(function() {
             // Retreive data
             var data = $(this).data('detail');
+            var data_trayek = $(this).data('trayek');
             
+            $.each( data_trayek, function( key, value ) {
+                console.log( 'nama' + ": " + value['pd_name'] );
+            });
+                            
             // Read Data
             var pc_id = data['pc_id'];
             var pc_name = data['pc_name'];

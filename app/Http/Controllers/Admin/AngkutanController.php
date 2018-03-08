@@ -31,13 +31,13 @@ class AngkutanController extends Controller
         $data = array();
         
         // Get Data
-        $get_angkutan = PlaceCode::paginate(5);
+        $get_angkutan = PlaceCode::with('details')->paginate(5);
         $get_lokasi = PlaceDetails::get();
 
         // Mapping
         $data['angkutan'] = $get_angkutan;
         $data['lokasi'] = $get_lokasi;
-
+        
         return view('content.angkutan.index', $data);
     }
 
