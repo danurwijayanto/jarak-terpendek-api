@@ -14,6 +14,8 @@
 <link href="{{ url('css/style.css') }}" rel="stylesheet">
 <!-- color CSS -->
 <link href="{{ url('css/colors/default.css') }}" id="theme" rel="stylesheet">
+<!-- Select 2 CSS -->
+<link href="{{ url('css/select2.min.css') }}" rel="stylesheet" />
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
@@ -23,3 +25,5 @@
 <script src="{{ url('plugins/bower_components/jquery/dist/jquery.min.js') }}" ></script>
 <!-- Bootstrap Core JavaScript -->
 <script src="{{ url('bootstrap/dist/js/bootstrap.min.js') }}" ></script>
+<!-- Select 2 JavaScript -->
+<script src="{{ url('js/select2.min.js') }}"></script>

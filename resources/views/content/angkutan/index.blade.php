@@ -89,7 +89,17 @@
                 <label for="email">Kode Angkutan :</label>
                 <input type="text" class="form-control" name="kode_angkutan">
             </div>
-            <button type="submit" class="btn btn-default">Submit</button>
+            <div class="form-group">
+                <label for="email">Trayek :</label>
+                <select class="js-example-basic-multiple form-control" name="trayek[]" multiple="multiple">
+                    @if (isset($lokasi) && !empty($lokasi))
+                    @foreach ($lokasi as $list)
+                        <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
+                    @endforeach
+                    @endif
+                </select>
+            </div>
+            <button type="submit" class="btn btn-default">Simpan</button>
         </form>
       </div>
       <div class="modal-footer">
@@ -130,6 +140,10 @@
 
 <script>
     $( document ).ready(function() {
+        $('.js-example-basic-multiple').select2({
+            width: '100%',
+        });
+        
         $( ".edit-angkutan" ).click(function() {
             // Retreive data
             var data = $(this).data('detail');

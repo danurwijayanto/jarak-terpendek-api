@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Model\PlaceCode;
+use App\Model\PlaceDetails;
+use App\Model\CodeDetails;
 
 class AngkutanController extends Controller
 {
@@ -30,9 +32,11 @@ class AngkutanController extends Controller
         
         // Get Data
         $get_angkutan = PlaceCode::paginate(5);
+        $get_lokasi = PlaceDetails::get();
 
         // Mapping
         $data['angkutan'] = $get_angkutan;
+        $data['lokasi'] = $get_lokasi;
 
         return view('content.angkutan.index', $data);
     }
@@ -55,14 +59,31 @@ class AngkutanController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
-        $status = '';
+        $status = 'Gagal';
+        
+        // Insert Data
+        $angkutan = new PlaceCode;
+        $angkutan->pc_name = $request->kode_angkutan;
+        if ($angkutan->save()){
+            $id_angkutan = $angkutan->pc_id;
+            
+            foreach ($request->trayek as $list => $key){
+                $code_details = new CodeDetails;
+                $code_details->pc_id = $id_angkutan;
+                $code_details->pd_id = $key;
+                $code_details->save();
+            }
 
+            $status = "Data berhasil ditambah";
+        }
+        
+        /* Insert with Query Builder
         $insert = PlaceCode::insert(
             ['pc_name' => $data['kode_angkutan']]
         );
-
         $insert ? $status = 'Data berhasil ditambah' : $status = 'fail';
+        */
+
 
         // Return
         return redirect()->back()->with('alert', $status);
