@@ -8,7 +8,7 @@
 <div class="container-fluid">
     <div class="row bg-title">
         <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
-            <h4 class="page-title">Daftar Angkutan Kota</h4> </div>
+            <h4 class="page-title">Daftar Kode dan Trayek Angkutan Kota</h4> </div>
         
         <!--
         <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
@@ -44,7 +44,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Nama</th>
+                                <th>Kode</th>
                                 <th>Trayek</th>
                                 <th>Aksi</th>
                             </tr>
@@ -135,6 +135,16 @@
                 <label for="email">Kode Angkutan Baru :</label>
                 <input type="text" class="form-control" name="kode_angkutan_edit" id="kode-angkutan-edit">
             </div>
+            <div class="form-group">
+                <label for="email">Trayek :</label>
+                <select id="js-example-basic-multiple-edit" class="js-example-basic-multiple form-control" name="trayek_edit[]" multiple="multiple">
+                    @if (isset($lokasi) && !empty($lokasi))
+                    @foreach ($lokasi as $list)
+                        <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
+                    @endforeach
+                    @endif
+                </select>
+            </div>
             <button type="submit" class="btn btn-default">Submit</button>
         </form>
       </div>
@@ -156,16 +166,19 @@
             // Retreive data
             var data = $(this).data('detail');
             var data_trayek = $(this).data('trayek');
-            
-            $.each( data_trayek, function( key, value ) {
-                console.log( 'nama' + ": " + value['pd_name'] );
-            });
-                            
+            var selected = [];
+                                        
             // Read Data
             var pc_id = data['pc_id'];
             var pc_name = data['pc_name'];
             
             // Action
+            $.each( data_trayek, function( key, value ) {
+                selected.push(value['pd_id']);
+            });
+            $('#js-example-basic-multiple-edit').val(selected);
+            $('#js-example-basic-multiple-edit').trigger('change');
+            
             $("#kode-angkutan-edit").val(pc_name);
             $("#modal-edit-identification").html(': '+pc_name);
             $("#modal-edit-form").attr('action', '{{ url("/admin/angkutan") }}/'+pc_id+'/edit');

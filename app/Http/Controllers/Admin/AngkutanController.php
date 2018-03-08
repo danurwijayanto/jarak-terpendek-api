@@ -37,7 +37,7 @@ class AngkutanController extends Controller
         // Mapping
         $data['angkutan'] = $get_angkutan;
         $data['lokasi'] = $get_lokasi;
-        
+
         return view('content.angkutan.index', $data);
     }
 
@@ -113,10 +113,27 @@ class AngkutanController extends Controller
         // Variable
         $id = !empty($id) ? $id : '';
         $pc_name = isset($_GET['kode_angkutan_edit']) ? $_GET['kode_angkutan_edit'] : '';
+        $trayek_id = isset($_GET['trayek_edit']) ? $_GET['trayek_edit'] : '';
         $status = '';
-
         // Action
         $edit = PlaceCode::where('pc_id', $id)->update(['pc_name' => $pc_name]);
+        
+        if (!empty($trayek_id)){
+            // Hapus relasi sebelumnya
+            $delete_relations = CodeDetails::where('pc_id', $id)->delete();
+            
+            // Insert relasi dengan data baru
+            foreach ($trayek_id as $list => $key){
+    
+                $code_details = new CodeDetails;
+                $code_details->pc_id = $id;
+                $code_details->pd_id = $key;
+                $code_details->save();
+            }
+        }else{
+            // Hapus relasi semua
+            $delete_relations = CodeDetails::where('pc_id', $id)->delete();
+        }
 
         $edit ? $status = 'Data berhasil dirubah' : $status = 'fail';
 
