@@ -21,9 +21,6 @@
                     <input type="text" placeholder="Search..." class="form-control"> <a href=""><i class="fa fa-search"></i></a> </form>
                 -->
             </li>
-            <li>
-                <a class="profile-pic" href="#"> <img src="{{ url('plugins/images/users/varun.jpg') }}" alt="user-img" width="36" class="img-circle"><b class="hidden-xs">{{ Auth::user()->name }}</b></a>
-            </li>
         </ul>
     </div>
     <!-- /.navbar-header -->
@@ -41,23 +38,14 @@
         </div>
         <ul class="nav" id="side-menu">
             <li style="padding: 70px 0 0;">
-                <a href="{{ url('/admin/home') }}" class="waves-effect"><i class="fa fa-clock-o fa-fw" aria-hidden="true"></i>Home</a>
+                <a href="{{ url('/admin/home') }}" class="waves-effect"><i class="fa fa-clock-o fa-fw" aria-hidden="true"></i></a>
             </li>
             <li>
-                <a href="{{ url('/admin/angkutan') }}" class="waves-effect"><i class="fa fa-user fa-fw" aria-hidden="true"></i>Daftar Angkutan Kota</a>
+                <a href="{{ url('/admin/angkutan') }}" class="waves-effect"><i class="fa fa-user fa-fw" aria-hidden="true"></i></a>
             </li>
             <li>
-                <a href="{{ url('/admin/lokasi') }}" class="waves-effect"><i class="fa fa-table fa-fw" aria-hidden="true"></i>Daftar Nama Tempat</a>
+                <a href="{{ url('/admin/lokasi') }}" class="waves-effect"><i class="fa fa-table fa-fw" aria-hidden="true"></i></a>
             </li>
-            @guest
-            @else
-            <li>
-                <a href="{{ route('logout') }}" class="waves-effect" onclick="event.preventDefault();document.getElementById('logout-form').submit();"><i class="fa fa-user fa-fw" aria-hidden="true"></i>Logout</a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-            </li>
-            @endguest
         </ul>
     </div>
     
