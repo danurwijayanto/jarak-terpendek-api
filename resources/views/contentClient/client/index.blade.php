@@ -28,14 +28,26 @@
 </div>
 
 
+<script src="https://maps.googleapis.com/maps/api/js?key={{env('GMAPS_TOKEN')}}&callback=initMap" async defer></script>
 <script>
+    $( document ).ready(function() {
+        // $('#map').on('click',initialize)
+    });
     function initMap() {
+        var myLatLng = {lat: -7.074161, lng: 110.432116};
+
         // Create a map object and specify the DOM element for display.
         var map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: -34.397, lng: 150.644},
-            zoom: 8
+            center: myLatLng, 
+            zoom: 16
         });
-    }
+
+        var marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map,
+            title: 'Hello World!'
+        });
+    } 
+
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCEWdBHfR-M-p0esIDqHQF65DGBolGksQ&callback=initMap" async defer></script>
 @endsection

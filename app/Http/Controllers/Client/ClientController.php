@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Client;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Model\PlaceDetails;
+use App\Traits\Algoritm;
 
 class ClientController extends Controller
 {
+    use Algoritm;
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +17,13 @@ class ClientController extends Controller
      */
     public function index()
     {
-        return view('contentClient.client.index');
+        // Get Data
+        $get_place = PlaceDetails::paginate(5);
+
+        // Mapping
+        $data['lokasi'] = $get_place;
+
+        return view('contentClient.client.index', $data);
     }
 
     /**
@@ -81,5 +90,9 @@ class ClientController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function calculate(Request $request){
+        $process = ($this->getDistance($request));
     }
 }

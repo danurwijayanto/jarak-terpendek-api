@@ -37,18 +37,36 @@
             <h3><span class="fa-fw open-close"><i class="ti-close ti-menu"></i></span> <span class="hide-menu">Navigation</span></h3>
         </div>
         <ul class="nav" id="side-menu">
-            <li style="padding: 70px 0 0;">
-                <a href="{{ url('/admin/home') }}" class="waves-effect"><i class="fa fa-clock-o fa-fw" aria-hidden="true"></i></a>
-            </li>
-            <li>
-                <a href="{{ url('/admin/angkutan') }}" class="waves-effect"><i class="fa fa-user fa-fw" aria-hidden="true"></i></a>
-            </li>
-            <li>
-                <a href="{{ url('/admin/lokasi') }}" class="waves-effect"><i class="fa fa-table fa-fw" aria-hidden="true"></i></a>
-            </li>
+            <form action="{{ url('/proses') }}" method="POST">
+                @csrf
+                <li style="padding: 70px 20px 0;">
+                    <div class="form-group">
+                        <label for="dari">Dari :</label>
+                        <select class="form-control" name="dari">
+                            @if (isset($lokasi) && !empty($lokasi))
+                            @foreach ($lokasi as $list)
+                                <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
+                            @endforeach
+                            @endif
+                        </select>
+                    </div>
+                </li>
+                <li style="padding: 0px 20px 0;">
+                    <div class="form-group">
+                        <label for="tujuan">Ke :</label>
+                        <select class="form-control" name="tujuan">
+                            @if (isset($lokasi) && !empty($lokasi))
+                            @foreach ($lokasi as $list)
+                                <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
+                            @endforeach
+                            @endif
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-default">Cari</button>
+                </li>
+            </form>
         </ul>
     </div>
-    
 </div>
 <!-- ============================================================== -->
 <!-- End Left Sidebar -->

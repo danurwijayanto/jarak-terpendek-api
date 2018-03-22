@@ -20,6 +20,7 @@ Auth::routes();
 // Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/', 'Client\ClientController@index');
+Route::post('/proses', 'Client\ClientController@calculate');
 
 Route::prefix('admin')->group(function () {
 
