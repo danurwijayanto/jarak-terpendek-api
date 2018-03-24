@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Model\PlaceCode;
 use App\Model\PlaceDetails;
 use App\Model\CodeDetails;
+use RFHaversini\Distance;
 
 trait Algoritm{
     public function getDistance(Request $request){
@@ -27,6 +28,8 @@ trait Algoritm{
         $res = $client->request('GET', $url.$origins.$destination.$key);
         // dd($res->getStatusCode());
         // dd($res->getHeaderLine('content-type'));
-        dd(json_decode($res->getBody()));
+        $inKilometers = Distance::toKilometers(-7.074161, 110.432116, -6.981927, 110.366058);
+        // $inMiles      = Distance::toMiles(30.261699, -97.738967, 29.869229, -97.959595);
+        dd(json_decode($inKilometers));
     }
 }

@@ -298,6 +298,13 @@ class ComposerStaticInit5dea5c488c1f3c922168668683bf6ade
     );
 
     public static $prefixesPsr0 = array (
+        'R' => 
+        array (
+            'RFHaversini' => 
+            array (
+                0 => __DIR__ . '/..' . '/rafaelfragoso/haversini-formula/src',
+            ),
+        ),
         'P' => 
         array (
             'Prophecy\\' => 
@@ -363,6 +370,7 @@ class ComposerStaticInit5dea5c488c1f3c922168668683bf6ade
         'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',
         'App\\Providers\\EventServiceProvider' => __DIR__ . '/../..' . '/app/Providers/EventServiceProvider.php',
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
+        'App\\Traits\\Algoritm' => __DIR__ . '/../..' . '/app/Traits/Algoritm.php',
         'App\\User' => __DIR__ . '/../..' . '/app/User.php',
         'Carbon\\Carbon' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Carbon.php',
         'Carbon\\CarbonInterval' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/CarbonInterval.php',
@@ -2902,6 +2910,7 @@ class ComposerStaticInit5dea5c488c1f3c922168668683bf6ade
         'Psy\\VersionUpdater\\GitHubChecker' => __DIR__ . '/..' . '/psy/psysh/src/Psy/VersionUpdater/GitHubChecker.php',
         'Psy\\VersionUpdater\\IntervalChecker' => __DIR__ . '/..' . '/psy/psysh/src/Psy/VersionUpdater/IntervalChecker.php',
         'Psy\\VersionUpdater\\NoopChecker' => __DIR__ . '/..' . '/psy/psysh/src/Psy/VersionUpdater/NoopChecker.php',
+        'RFHaversini\\Distance' => __DIR__ . '/..' . '/rafaelfragoso/haversini-formula/src/RFHaversini/Distance.php',
         'Ramsey\\Uuid\\BinaryUtils' => __DIR__ . '/..' . '/ramsey/uuid/src/BinaryUtils.php',
         'Ramsey\\Uuid\\Builder\\DefaultUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DefaultUuidBuilder.php',
         'Ramsey\\Uuid\\Builder\\DegradedUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DegradedUuidBuilder.php',
