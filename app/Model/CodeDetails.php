@@ -26,4 +26,9 @@ class CodeDetails extends Model
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    public function details()
+    {
+        return $this->belongsTo('App\Model\PlaceDetails', 'pd_id', 'pd_id');
+    }
 }

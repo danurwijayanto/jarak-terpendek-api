@@ -91,7 +91,7 @@
         <h4 class="modal-title">Tambah Daftar Angkutan Kota</h4>
       </div>
       <div class="modal-body">
-        <form action="{{ url('/admin/angkutan') }}" method="POST">
+        <form id="form-tambah-angkutan" action="{{ url('/admin/angkutan') }}" method="POST">
             @csrf
             <div class="form-group">
                 <label for="email">Kode Angkutan :</label>
@@ -99,13 +99,25 @@
             </div>
             <div class="form-group">
                 <label for="email">Trayek :</label>
-                <select class="js-example-basic-multiple form-control" name="trayek[]" multiple="multiple">
+                <!-- <select class="js-example-basic-multiple form-control" name="trayek[]" multiple="multiple"> -->
+                <select id="select-lokasi" class="form-control" name="list-lokasi">
                     @if (isset($lokasi) && !empty($lokasi))
                     @foreach ($lokasi as $list)
                         <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
                     @endforeach
                     @endif
                 </select>
+                <button type="button" class="btn btn-default tambah-trayek">Tambah</button>
+                <table class="table" id="tabel-trayek">
+                    <thead>
+                        <tr>
+                            <th>Trayek</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-trayek-body">
+                    </tbody>
+                </table>
             </div>
             <button type="submit" class="btn btn-default">Simpan</button>
         </form>
@@ -137,7 +149,8 @@
             </div>
             <div class="form-group">
                 <label for="email">Trayek :</label>
-                <select id="js-example-basic-multiple-edit" class="js-example-basic-multiple form-control" name="trayek_edit[]" multiple="multiple">
+                <!-- <select id="js-example-basic-multiple-edit" class="js-example-basic-multiple form-control" name="trayek_edit[]" multiple="multiple"> -->
+                <select id="select-lokasi" class="form-control" name="list-lokasi-edit">    
                     @if (isset($lokasi) && !empty($lokasi))
                     @foreach ($lokasi as $list)
                         <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
@@ -158,6 +171,25 @@
 
 <script>
     $( document ).ready(function() {
+        $('.tambah-trayek').click(function() {
+            var id_trayek = $("#select-lokasi :selected").val();
+            var trayek = $("#select-lokasi :selected").text();
+            $('<input>').attr({
+                type: 'hidden',
+                id: 'trayek_'+id_trayek,
+                name: 'trayek[]',
+                value: id_trayek
+            }).appendTo('#form-tambah-angkutan');
+            
+            $("#tabel-trayek-body").append('<tr><td>'+trayek+'</td><td><a href="#" data-id='+id_trayek+' class="hapus-trayek">Hapus</a></td></tr>');
+        });
+        
+        $('#tabel-trayek-body').on('click', '.hapus-trayek', function() {
+            var id_trayek = $(this).data('id'); 
+            $(this).parent().parent().remove();
+            $('#trayek_'+id_trayek).remove();
+        });
+
         $('.js-example-basic-multiple').select2({
             width: '100%',
         });

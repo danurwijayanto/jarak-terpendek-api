@@ -18,7 +18,7 @@ class ClientController extends Controller
     public function index()
     {
         // Get Data
-        $get_place = PlaceDetails::paginate(5);
+        $get_place = PlaceDetails::get();
 
         // Mapping
         $data['lokasi'] = $get_place;
@@ -93,6 +93,6 @@ class ClientController extends Controller
     }
 
     public function calculate(Request $request){
-        $process = ($this->getDistance($request));
+        $process = ($this->algoritm_index($request));
     }
 }

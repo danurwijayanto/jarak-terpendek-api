@@ -9,8 +9,104 @@ use App\Model\PlaceDetails;
 use App\Model\CodeDetails;
 use RFHaversini\Distance;
 use App\Plugins\FloydWarshall;
+use App\Plugins\FloydWarshallOriginal;
 
 trait Algoritm{
+    public function algoritm_index(Request $request){
+        //dd(Distance::toKilometers(-7.017465 ,110.494001, -7.003089, 110.450061));
+        $from = PlaceDetails::find($request->dari);
+        
+        echo "<table border='1' width='100%'><tbody><tr><td>";
+        // $nama_jalan[] = "Start -".$from->pd_name;
+        // $lat[] = $from->pd_latitude;
+        // $long[] = $from->pd_longitude;
+        $nama_jalan = array();
+        $lat = array();
+        $lon = array();
+        echo "</td><td>Start -".$from->pd_name;
+
+        // $data = PlaceDetails::where('pd_id', '!=', $request->tujuan)->where('pd_id', '!=', $request->dari)->get();
+        // $newData = CodeDetails::whereIn('pd_id', [$request->dari, $request->tujuan])->get();
+        // $test = CodeDetails::select('pc_id')->where('pd_id', '=', $request->tujuan)->orWhere('pd_id', '=', $request->dari)->groupBy('pc_id')->get();
+        $data = CodeDetails::whereIn('pc_id', function($query) use ($request){
+            $query->select('pc_id')
+            ->from('code_detail')
+            ->where('pd_id', '=', $request->tujuan)->orWhere('pd_id', '=', $request->dari)
+            ->groupBy('pc_id');
+        })->with('details')->get();
+
+        foreach($data as $d) {
+            echo "</td><td>".$d->details->pd_name;
+            $nama_jalan[] = $d->details->pd_name;
+            $lat[] = $d->details->pd_latitude;
+            $long[] = $d->details->pd_longitude;
+        }
+
+        // $lokasi = PlaceDetails::find($request->tujuan);
+        // echo "</td><td>$lokasi[pd_name]";
+        // $lat[] = $lokasi['pd_latitude'];
+        // $long[] = $lokasi['pd_longtitude'];
+        // $nama_jalan[] = $lokasi['pd_name'];
+        
+        $jlhsas = count($nama_jalan)-1;
+        
+        $n = 0;
+        foreach ($nama_jalan as $key1 => $value1) {
+            echo "</td></tr><tr><td>$value1";
+            foreach ($nama_jalan as $key => $value) {
+            //include "distans.php";
+            $nama[$key1][$key] = $value1.'-'.$value;
+        
+            
+            if ($value == $value1) {
+                $dataf = 0;
+            }
+            
+            if ($key1>$key) {
+                if ($key == 0 and $key1 == $jlhsas) {
+                    $dataf = "∞";
+                }
+                else{
+                    $asala   = $lat[$key].",".$long[$key];
+                    $tujuana =  $lat[$key1].",".$long[$key1];
+                    $jarak = Distance::toKilometers($lat[$key] ,$long[$key], $lat[$key1], $long[$key1]);
+                    
+                    $dataf = $jarak;
+                    //include "distans.php";
+                }
+        
+                echo "</td><td align='right'>".$dataf;//.' >'.$key.','.$key1;//.'='.$nama[$key][$key1];
+            }
+            elseif ($key1 == $key) {
+                $dataf=0;
+                echo "</td><td align='right'>".$dataf;
+            }
+            else{
+                if ($key1 == 0 and $key == $jlhsas) {
+                    $dataf = "∞";
+                }
+                else{
+                    $asala   = $lat[$key1].",".$long[$key1];
+                    $tujuana =  $lat[$key].",".$long[$key];
+                    $jarak = Distance::toKilometers($lat[$key] ,$long[$key], $lat[$key1], $long[$key1]);
+                    $dataf = $jarak;
+                    //include "distans.php";
+                }
+        
+                echo "</td><td align='right'>".$dataf;//. ' > '.$key1.','.$key;//.'='.$nama[$key1][$key];
+            }
+                
+            $graph[$key1][] = str_replace(" km", "", str_replace(",", ".", $dataf));
+            }
+            $nodes[] = $value1;
+            $n++;
+        }
+        echo "</td></tr></tbody></table>";
+        $jlss = count($nama_jalan)-1;
+        echo "<br><br>";
+        $this->getDistanceOriginal($graph, $nodes, $jlss);
+    }
+
     public function getDistance(Request $request){
         // Define variabel
         $from = $request->dari;
@@ -67,11 +163,12 @@ trait Algoritm{
                     //   array(0,0,10,0,0,4),
                     //   array(0,0,17,20,0,0));
         $nodes = array("a", "b", "c", "d");
+
         // dd($nodes);
-        $fw = new FloydWarshall($graph, $nodes);
+        $fw = new FloydWarshall($distance_matrix, $node);
         // dd($fw);
         // $fw->print_path(0,3);
-        $fw->print_graph();
+        //$fw->print_graph();
         // $fw->print_dist();
         // $fw->print_pred();
     
@@ -96,5 +193,43 @@ trait Algoritm{
         $menit = round(($fw->get_distance(0,$jlss)/40)*60,0);
         print_r($fw->get_distance(0,$jlss));
         echo " km yaitu $menit</strong>";
+    }
+
+    public function getDistanceOriginal($graph, $nodes, $jlss){
+        
+        //$graph = array(array(0,5,8,6),
+        //               array(5,0,3,1),
+        //               array(8,3,0,1),
+        //               array(6,1,1,0));
+        //               array(0,0,10,0,0,4),
+        //               array(0,0,17,20,0,0));
+        //$nodes = array("a", "b", "c", "d");
+    
+        $fw = new FloydWarshall($graph, $nodes);
+        //$fw->print_path(0,2);
+        //$fw->print_graph();
+        $fw->print_dist();
+        //$fw->print_pred();
+    
+        $sp = $fw->get_path(0,$jlss);
+    
+        echo 'Ruter Terdekat Dari Star Ke '.$nodes[$jlss].' Adalah: <strong>';
+        $jl = count($sp);
+        $r=1;
+        foreach ($sp as $value) {
+            echo $nodes[$value];
+            if ($r == $jl) {
+                
+            }
+            else{
+                echo ' => ';
+            }
+            $r++;
+                
         }
+        echo ' | Dengan Jarak Tempu ';
+        $menit = round(($fw->get_distance(0,$jlss)/40)*60,0);
+        print_r($fw->get_distance(0,$jlss));
+        echo " km yaitu $menit</strong>";
+    }
 }
