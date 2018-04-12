@@ -63,7 +63,7 @@
                                         </ul>
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-primary edit-angkutan" role="button" data-toggle="modal" data-target="#editAngkutan" data-trayek='{{ json_encode($list->details) }}' data-detail='{{ json_encode(array("pc_id" => $list->pc_id, "pc_name" => $list->pc_name)) }}'>Rubah</a>
+                                        <a href="#" class="btn btn-primary edit-angkutan-fixed" role="button" data-toggle="modal" data-target="#editAngkutan" data-trayek='{{ json_encode($list->details) }}' data-detail='{{ json_encode(array("pc_id" => $list->pc_id, "pc_name" => $list->pc_name)) }}'>Rubah</a>
                                         <a href="{{ url('admin/angkutan/hapus/'.$list->pc_id) }}" class="btn btn-danger" role="button">Hapus</a>
                                     </td>
                                 </tr>
@@ -150,13 +150,24 @@
             <div class="form-group">
                 <label for="email">Trayek :</label>
                 <!-- <select id="js-example-basic-multiple-edit" class="js-example-basic-multiple form-control" name="trayek_edit[]" multiple="multiple"> -->
-                <select id="select-lokasi" class="form-control" name="list-lokasi-edit">    
+                <select id="select-lokasi-edit" class="form-control" name="list-lokasi-edit">    
                     @if (isset($lokasi) && !empty($lokasi))
                     @foreach ($lokasi as $list)
                         <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
                     @endforeach
                     @endif
                 </select>
+                <button type="button" class="btn btn-default tambah-trayek-edit">Tambah</button>
+                <table class="table" id="tabel-trayek-edit">
+                    <thead>
+                        <tr>
+                            <th>Trayek</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-trayek-body-edit">
+                    </tbody>
+                </table>
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
         </form>
@@ -183,11 +194,30 @@
             
             $("#tabel-trayek-body").append('<tr><td>'+trayek+'</td><td><a href="#" data-id='+id_trayek+' class="hapus-trayek">Hapus</a></td></tr>');
         });
+
+        $('.tambah-trayek-edit').click(function() {
+            var id_trayek = $("#select-lokasi-edit :selected").val();
+            var trayek = $("#select-lokasi-edit :selected").text();
+            $('<input>').attr({
+                type: 'hidden',
+                id: 'trayek-edit-'+id_trayek,
+                name: 'trayek_edit[]',
+                value: id_trayek
+            }).appendTo('#modal-edit-form');
+            
+            $("#tabel-trayek-body-edit").append('<tr><td>'+trayek+'</td><td><a href="#" data-id='+id_trayek+' class="hapus-trayek-edit">Hapus</a></td></tr>');
+        });
         
         $('#tabel-trayek-body').on('click', '.hapus-trayek', function() {
             var id_trayek = $(this).data('id'); 
             $(this).parent().parent().remove();
             $('#trayek_'+id_trayek).remove();
+        });
+
+        $('#tabel-trayek-body-edit').on('click', '.hapus-trayek-edit', function() {
+            var id_trayek = $(this).data('id'); 
+            $(this).parent().parent().remove();
+            $('#trayek-edit-'+id_trayek).remove();
         });
 
         $('.js-example-basic-multiple').select2({
@@ -210,6 +240,33 @@
             });
             $('#js-example-basic-multiple-edit').val(selected);
             $('#js-example-basic-multiple-edit').trigger('change');
+            
+            $("#kode-angkutan-edit").val(pc_name);
+            $("#modal-edit-identification").html(': '+pc_name);
+            $("#modal-edit-form").attr('action', '{{ url("/admin/angkutan") }}/'+pc_id+'/edit');
+        });
+
+        $( ".edit-angkutan-fixed" ).click(function() {
+            // Retreive data
+            var data = $(this).data('detail');
+            var data_trayek = $(this).data('trayek');
+            var selected = [];
+                                        
+            // Read Data
+            var pc_id = data['pc_id'];
+            var pc_name = data['pc_name'];
+            
+            // Action
+            $.each( data_trayek, function( key, value ) {
+                selected.push(value['pd_id']);
+                $("#tabel-trayek-body-edit").append('<tr><td>'+value['pd_name']+'</td><td><a href="#" data-id='+value['pd_id']+' class="hapus-trayek-edit">Hapus</a></td></tr>');
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'trayek-edit-'+value['pd_id'],
+                    name: 'trayek_edit[]',
+                    value: value['pd_id']
+                }).appendTo('#modal-edit-form');
+            });
             
             $("#kode-angkutan-edit").val(pc_name);
             $("#modal-edit-identification").html(': '+pc_name);
