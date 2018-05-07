@@ -32,7 +32,7 @@ class AngkutanController extends Controller
         
         // Get Data
         $get_angkutan = PlaceCode::with('details')->paginate(5);
-        $get_lokasi = PlaceDetails::get();
+        $get_lokasi = PlaceDetails::orderBy("pd_name", "asc")->get();
 
         // Mapping
         $data['angkutan'] = $get_angkutan;

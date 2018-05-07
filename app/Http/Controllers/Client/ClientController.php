@@ -18,7 +18,7 @@ class ClientController extends Controller
     public function index()
     {
         // Get Data
-        $get_place = PlaceDetails::get();
+        $get_place = PlaceDetails::orderBy("pd_name", "asc")->get();
 
         // Mapping
         $data['lokasi'] = $get_place;
@@ -93,6 +93,20 @@ class ClientController extends Controller
     }
 
     public function calculate(Request $request){
+        // dd('asdasd');
         $process = ($this->algoritm_index($request));
+        dd($process);
+        $url = "https://maps.googleapis.com/maps/api/directions/json?";
+        $origins = "origin=-7.064537,110.412407";
+        $destination = "&destination=-7.092464,110.4092";
+        $key = "&key=".env("GMAPS_TOKEN");
+        $client = new \GuzzleHttp\Client();
+        // dd($url.$origins.$destination.$key);
+        // $res = $client->request('GET', $url.$origins.$destination.$key);
+        // dd($res->getStatusCode());
+        // dd($res->getHeaderLine('content-type'));
+        // dd(json_decode($res->getBody(), true));
+
+        return view('contentClient.client.ruteTerpendek');
     }
 }
