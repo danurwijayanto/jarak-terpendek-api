@@ -95,18 +95,42 @@ class ClientController extends Controller
     public function calculate(Request $request){
         // dd('asdasd');
         $process = ($this->algoritm_index($request));
-        dd($process);
-        $url = "https://maps.googleapis.com/maps/api/directions/json?";
-        $origins = "origin=-7.064537,110.412407";
-        $destination = "&destination=-7.092464,110.4092";
-        $key = "&key=".env("GMAPS_TOKEN");
-        $client = new \GuzzleHttp\Client();
-        // dd($url.$origins.$destination.$key);
-        // $res = $client->request('GET', $url.$origins.$destination.$key);
-        // dd($res->getStatusCode());
-        // dd($res->getHeaderLine('content-type'));
-        // dd(json_decode($res->getBody(), true));
+        $group = array();
+        $place = array();
 
-        return view('contentClient.client.ruteTerpendek');
+        $return_data = array();
+        $return_data['maps_detail'] = array();
+        foreach ($process as $data){
+            $getPlace = PlaceDetails::where('pd_name', $data)->get()->toArray();
+            foreach ($getPlace as $listData){
+                array_push($place, $listData);
+            }
+        }
+        $countPlace = count($place);
+      
+        for ($i = 0; $i <= $countPlace - 1; $i++) {
+            
+            $url = "https://maps.googleapis.com/maps/api/directions/json?";
+            $origins = "origin=".$place[$i]['pd_latitude'].",".$place[$i]['pd_longitude'];
+            $destination = "&destination=".$place[$i+1]['pd_latitude'].",".$place[$i+1]['pd_longitude'];
+            $key = "&key=".env("GMAPS_TOKEN");
+            $client = new \GuzzleHttp\Client();
+            // dd($url.$origins.$destination.$key);
+            $res = $client->request('GET', $url.$origins.$destination.$key);
+            // dd($res->getStatusCode());
+            // dd($res->getHeaderLine('content-type'));
+            $res = json_decode($res->getBody(), true);
+            
+            $group['latitude'] = $place[$i]['pd_latitude'];
+            $group['longitude'] = $place[$i]['pd_longitude'];
+            foreach ($res['routes'] as $a){
+                $group['polyline'] = $a['overview_polyline']['points'];
+                array_push($return_data['maps_detail'],$group);
+            }
+            
+        } 
+        $return_data['maps_detail'] = json_encode($return_data['maps_detail']);
+
+        return view('contentClient.client.ruteTerpendek', $return_data);
     }
 }
