@@ -39,13 +39,28 @@
         <ul class="nav" id="side-menu">
             <form action="{{ url('/proses') }}" method="POST">
                 @csrf
+                <?php
+                    if (!empty($place_detail)){
+                        $detail = json_decode($place_detail, true);
+                        $count_data = count($detail);
+                    }
+                ?>
                 <li style="padding: 70px 20px 0;">
                     <div class="form-group">
                         <label for="dari">Dari :</label>
                         <select class="form-control" name="dari">
                             @if (isset($lokasi) && !empty($lokasi))
                             @foreach ($lokasi as $list)
-                                <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
+                                <option 
+                                    value="{{ $list->pd_id }}"
+                                    <?php 
+                                        if (!empty($place_detail) && ($list->pd_id == $detail[0]['pd_id'])){
+                                            echo ' selected="selected"';
+                                        }
+                                    ?>
+                                >
+                                {{ $list->pd_name }}
+                                </option>
                             @endforeach
                             @endif
                         </select>
@@ -57,7 +72,14 @@
                         <select class="form-control" name="tujuan">
                             @if (isset($lokasi) && !empty($lokasi))
                             @foreach ($lokasi as $list)
-                                <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
+                                <option 
+                                    value="{{ $list->pd_id }}"
+                                    <?php
+                                    if (!empty($place_detail) && ($list->pd_id == $detail[$count_data-1]['pd_id'])){
+                                        echo ' selected="selected"';
+                                    }
+                                    ?>
+                                >{{ $list->pd_name }}</option>
                             @endforeach
                             @endif
                         </select>

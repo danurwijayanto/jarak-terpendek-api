@@ -31,4 +31,9 @@ class CodeDetails extends Model
     {
         return $this->belongsTo('App\Model\PlaceDetails', 'pd_id', 'pd_id');
     }
+
+    public function details_code()
+    {
+        return $this->belongsTo('App\Model\PlaceCode', 'pc_id', 'pc_id');
+    }
 }

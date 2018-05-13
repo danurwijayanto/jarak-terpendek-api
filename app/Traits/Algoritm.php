@@ -18,45 +18,44 @@ trait Algoritm{
         $from = PlaceDetails::find($request->dari);
         $destination = PlaceDetails::find($request->tujuan);
 
-        echo "<table border='1' width='100%'><tbody><tr><td>";
-        // $nama_jalan[] = "Start -".$from->pd_name;
-        // $lat[] = $from->pd_latitude;
-        // $long[] = $from->pd_longitude;
+        // echo "<table border='1' width='100%'><tbody><tr><td>";
+
         $nama_jalan = array();
+        $transit = array();
+        $transit['angkot'] = array();
         $lat = array();
         $lon = array();
-        //echo "</td><td>Start -".$from->pd_name;
-
-        // $data = PlaceDetails::where('pd_id', '!=', $request->tujuan)->where('pd_id', '!=', $request->dari)->get();
-        // $newData = CodeDetails::whereIn('pd_id', [$request->dari, $request->tujuan])->get();
-        // $test = CodeDetails::select('pc_id')->where('pd_id', '=', $request->tujuan)->orWhere('pd_id', '=', $request->dari)->groupBy('pc_id')->get();
+       
         $data = CodeDetails::whereIn('pc_id', function($query) use ($request){
             $query->select('pc_id')
             ->from('code_detail')
             ->where('pd_id', '=', $request->tujuan)->orWhere('pd_id', '=', $request->dari)
             ->groupBy('pc_id');
-        })->with('details')->get();
+        })->with('details')->with('details_code')->get();
 
         foreach($data as $d) {
-            echo "</td><td>".$d->details->pd_name;
-            $nama_jalan[] = $d->details->pd_name;
-            $lat[] = $d->details->pd_latitude;
-            $long[] = $d->details->pd_longitude;
+            // echo "</td><td>".$d->details->pd_name;
+            if (in_array($d->details->pd_name,$nama_jalan)){
+                $transit['place_name'][] = $d->details->pd_name;
+            }else{
+                $nama_jalan[] = $d->details->pd_name;
+                $lat[] = $d->details->pd_latitude;
+                $long[] = $d->details->pd_longitude;
+                
+                if (!in_array($d->details_code->pc_name,$transit['angkot'])){
+                    $transit['angkot'][] = $d->details_code->pc_name;
+                }
+            }
         }
 
-        // $lokasi = PlaceDetails::find($request->tujuan);
-        // echo "</td><td>$lokasi[pd_name]";
-        // $lat[] = $lokasi['pd_latitude'];
-        // $long[] = $lokasi['pd_longtitude'];
-        // $nama_jalan[] = $lokasi['pd_name'];
-        
+
         $jlhsas = count($nama_jalan)-1;
         //dd($nama_jalan);
         $n = 0;
         foreach ($nama_jalan as $key1 => $value1) {
-            echo "</td></tr><tr><td>$value1";
+            // echo "</td></tr><tr><td>$value1";
             foreach ($nama_jalan as $key => $value) {
-            //include "distans.php";
+
             $nama[$key1][$key] = $value1.'-'.$value;
         
             
@@ -84,11 +83,11 @@ trait Algoritm{
                     //include "distans.php";
                 }
         
-                echo "</td><td align='right'>".$dataf;//.' >'.$key.','.$key1;//.'='.$nama[$key][$key1];
+                // echo "</td><td align='right'>".$dataf;//.' >'.$key.','.$key1;//.'='.$nama[$key][$key1];
             }
             elseif ($key1 == $key) {
                 $dataf=0;
-                echo "</td><td align='right'>".$dataf;
+                // echo "</td><td align='right'>".$dataf;
             }
             else{
                 // if ($key1 == 0 and $key == $jlhsas) {
@@ -106,7 +105,7 @@ trait Algoritm{
                     //include "distans.php";
                 }
         
-                echo "</td><td align='right'>".$dataf;//. ' > '.$key1.','.$key;//.'='.$nama[$key1][$key];
+                // echo "</td><td align='right'>".$dataf;//. ' > '.$key1.','.$key;//.'='.$nama[$key1][$key];
             }
                 
             $graph[$key1][] = str_replace(" km", "", str_replace(",", ".", $dataf));
@@ -114,12 +113,14 @@ trait Algoritm{
             $nodes[] = $value1;
             $n++;
         }
-        echo "</td></tr></tbody></table>";
+        // echo "</td></tr></tbody></table>";
         // $jlss = count($nama_jalan)-1;
         $index_from =  array_search($from->pd_name, $nama_jalan);
         $index_destination =  array_search($destination->pd_name, $nama_jalan);
-        echo "<br><br>";
-        return $this->getDistanceOriginal($graph, $nodes, $index_from, $index_destination);
+        // echo "<br><br>";
+        $return_data['get_Distance'] = $this->getDistanceOriginal($graph, $nodes, $index_from, $index_destination);
+        $return_data['transit'] = $transit;
+        return $return_data;
     }
 
     public function getDistance(Request $request){
@@ -223,12 +224,12 @@ trait Algoritm{
         $fw = new FloydWarshall($graph, $nodes);
         //$fw->print_path(0,2);
         //$fw->print_graph();
-        $fw->print_dist();
+        // $fw->print_dist();
         //$fw->print_pred();
     
         $sp = $fw->get_path($index_from,$index_destination);
     
-        echo 'Ruter Terdekat Dari Start '.$nodes[$index_from].' Ke '.$nodes[$index_destination].' Adalah: <strong>';
+        // echo 'Ruter Terdekat Dari Start '.$nodes[$index_from].' Ke '.$nodes[$index_destination].' Adalah: <strong>';
         $jl = count($sp);
         $r=1;
 

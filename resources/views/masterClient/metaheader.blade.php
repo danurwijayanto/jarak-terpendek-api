@@ -1,3 +1,4 @@
+
 <link href="{{ url('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
 <!-- Menu CSS -->
 <link href="{{ url('plugins/bower_components/sidebar-nav/dist/sidebar-nav.min.css') }}" rel="stylesheet">
@@ -16,6 +17,13 @@
 <link href="{{ url('css/colors/default.css') }}" id="theme" rel="stylesheet">
 <!-- Select 2 CSS -->
 <link href="{{ url('css/select2.min.css') }}" rel="stylesheet" />
+<style>
+    /* #map-canvas {
+        height: 50%;
+        margin: 0;
+        padding: 0;
+      } */
+</style>
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
@@ -31,4 +39,4 @@
 on this page. Replace it with your own styles as described in the
 documentation:
 https://developers.google.com/maps/documentation/javascript/tutorial -->
-<link rel="stylesheet" href="{{ url('css/gmaps.css') }}">
+<!-- <link rel="stylesheet" href="{{ url('css/gmaps.css') }}"> -->

@@ -1,12 +1,69 @@
+@extends('masterClient.index')
 
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-<title>Google Maps JavaScript API v3 </title>
- <meta charset="utf-8">
+@section('title')
+<title>Skripsi - Angkutan Kota Semarang</title>
+@endsection
 
-<link href="https://developers.google.com/maps/documentation/javascript/examples/default.css" rel="stylesheet">
+@section('content')
+
+<!-- panggil javascript saat halaman dibuka -->
+<body onload="initialize()">
+<!-- ukuran lebar peta 100 dan tinggi 400px-->
+
+<div class="container-fluid">
+    <div class="row bg-title">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <?php
+                if (!empty($place_detail)){
+                    $rute = json_decode($place_detail, true);
+                    $count = count($rute);
+                    $from_destination = $rute[0]['nama_daerah'];
+                    $to_destination = $rute[$count - 1]['nama_daerah'];
+                }
+            ?>
+            <h3>Rute dari : {{ $from_destination }}  menuju : {{ $to_destination }}</h3> </div>
+        
+        <!--
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <ol class="breadcrumb">
+                <li><a href="#">Dashboard</a></li>
+            </ol>
+        </div>
+        -->
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box" style="min-height: 160px;">
+                <div class="col-sm-4">
+                    <div id="map_canvas" class="gmaps"></div>
+                </div>
+                <div class="col-sm-8">
+                    <?php
+                        if (isset($rute)){
+                            $index = 0;
+                            foreach ($rute as $a){
+                                if ($index == 0){
+                                    echo "Naik ".$a['nama_trayek']."<br>";
+                                }
+                                if ($a['status'] == "pindah"){
+                                    echo "Kemudian turun di ".$a['nama_daerah']."<br>";
+                                    echo "Kemudian naik ".$a['nama_trayek']."<br>";
+                                }
+                                if ($index == $count-1){
+                                    echo "Kemudian turun dan sampai di  ".$a['nama_daerah']."<br>";
+                                }
+                                $index++;  
+                            }     
+                        }
+                    ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=geometry&key={{env('GMAPS_TOKEN')}}"></script>
 <!-- <script src="https://maps.googleapis.com/maps/api/js?key={{env('GMAPS_TOKEN')}}&callback=initMap" async defer></script> -->
 <script src="{{ url('plugins/bower_components/jquery/dist/jquery.min.js') }}" ></script>
@@ -16,8 +73,12 @@
 
     var data = '{{$maps_detail}}';
     data = JSON.parse(data.replace(/&quot;/g,'"'));
+    console.log(data);
 
-    var tengahpeta = new google.maps.LatLng(-7.78005,110.371715);
+    var node = '{{$place_detail}}';
+    node = JSON.parse(node.replace(/&quot;/g,'"'));
+
+    var tengahpeta = new google.maps.LatLng(data[0]['latitude'],data[0]['longitude']);
 
     var marker;
     var map;
@@ -42,11 +103,17 @@
 
         map = new google.maps.Map(document.getElementById("map_canvas"),mapOptions);
         
-        
-        jQuery.each( data, function( key, value ) {
-            console.log(value['latitude']);
-            var markerPoint = new google.maps.LatLng(value['latitude'],value['longitude']);
-
+        jQuery.each( node, function( key, value ) {
+            var markerPoint = new google.maps.LatLng(value['pd_latitude'],value['pd_longitude']);
+            
+            var infowindow = new google.maps.InfoWindow();
+            
+            var information = value['pd_name']+'<br>';
+            if (value['status']=='pindah'){
+                information += 'pindah trayek '+value['nama_trayek']+'<br>';
+            }else{
+                information += 'naik trayek '+value['nama_trayek']+'<br>';
+            }
             /*maker */
             marker = new google.maps.Marker({
                 map:map,
@@ -55,7 +122,15 @@
                 animation: google.maps.Animation.DROP,
                 position: markerPoint
             });
+            google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                return function() {
+                    infowindow.setContent(information);
+                    infowindow.open(map, marker);
+                }
+            })(marker, key));
+        });
 
+        jQuery.each( data, function( key, value ) {
             /* ini adalah data polyline yang kita buat dengan polyline encoder utility */
             var str = value['polyline'];
             var array = google.maps.geometry.encoding.decodePath(str);  //str contains the encoded string from the db
@@ -165,10 +240,5 @@
 
   
 </script>
-</head>
-<!-- panggil javascript saat halaman dibuka -->
-<body onload="initialize()">
-<!-- ukuran lebar peta 100 dan tinggi 400px-->
-<div id="map_canvas" style="width:100%; height: 600px;">map div</div>
-</body>
-</html>
+
+@endsection
