@@ -72,8 +72,9 @@
     titik awal tugu dan titik akhir ugm */
 
     var data = '{{$maps_detail}}';
+    data = data.replace('cHaNgE',"\\\\");
     data = JSON.parse(data.replace(/&quot;/g,'"'));
-    console.log(data);
+    // console.log(data);
 
     var node = '{{$place_detail}}';
     node = JSON.parse(node.replace(/&quot;/g,'"'));

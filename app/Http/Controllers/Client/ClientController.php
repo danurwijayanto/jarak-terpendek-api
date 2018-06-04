@@ -173,7 +173,7 @@ class ClientController extends Controller
             }
 
             foreach ($res['routes'] as $a){
-                $group['polyline'] = $a['overview_polyline']['points'];
+                $group['polyline'] = str_replace('\\','cHaNgE',$a['overview_polyline']['points']);
                 array_push($return_data['maps_detail'],$group);
             }
             
@@ -184,6 +184,7 @@ class ClientController extends Controller
         $return_data['place_detail'] = json_encode($place);
         $return_data['rute'] = json_encode($rute);
         $return_data['lokasi'] = $get_place;
+
         return view('contentClient.client.ruteTerpendek', $return_data);
     }
 }
