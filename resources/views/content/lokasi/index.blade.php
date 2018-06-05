@@ -91,15 +91,15 @@
             @csrf
             <div class="form-group">
                 <label for="email">Nama Tempat :</label>
-                <input type="text" class="form-control" name="nama_tempat">
+                <input type="text" class="form-control" name="nama_tempat" required>
             </div>
             <div class="form-group">
                 <label for="email">Longitude :</label>
-                <input type="text" class="form-control" name="longitude">
+                <input type="text" class="form-control" name="longitude" required>
             </div>
             <div class="form-group">
                 <label for="email">Latitude :</label>
-                <input type="text" class="form-control" name="latitude">
+                <input type="text" class="form-control" name="latitude" required>
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
         </form>
@@ -127,15 +127,15 @@
             @csrf
             <div class="form-group">
                 <label for="email">Nama Tempat Baru:</label>
-                <input type="text" class="form-control" name="nama_tempat_edit" id="nama-tempat-edit">
+                <input type="text" class="form-control" name="nama_tempat_edit" id="nama-tempat-edit" required>
             </div>
             <div class="form-group">
                 <label for="email">Longitude Baru :</label>
-                <input type="text" class="form-control" name="longitude_edit" id="longitude-edit">
+                <input type="text" class="form-control" name="longitude_edit" id="longitude-edit" required>
             </div>
             <div class="form-group">
                 <label for="email">Latitude Baru :</label>
-                <input type="text" class="form-control" name="latitude_edit" id="latitude-edit">
+                <input type="text" class="form-control" name="latitude_edit" id="latitude-edit" required>
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
         </form>

@@ -58,6 +58,11 @@ class LokasiController extends Controller
         $data = $request->all();
         $status = '';
 
+        if (PlaceDetails::where('pd_name', '=', $data['nama_tempat'])->exists()){
+            $status = "Gagal menambahkan data, kode tempat sudah terpakai";
+            return redirect()->back()->with('alert', $status);
+        }
+
         $insert = PlaceDetails::insert([
             'pd_name' => $data['nama_tempat'],
             'pd_longitude' => $data['longitude'],
