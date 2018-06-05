@@ -60,7 +60,17 @@ class AngkutanController extends Controller
     public function store(Request $request)
     {
         $status = 'Gagal';
-        
+        if (empty($request->trayek) || empty($request->kode_angkutan)){
+            $status = "Gagal menambahkan data, harap mengisi data trayek";
+            return redirect()->back()->with('alert', $status);
+        }
+
+        // dd($find_angkutan);
+        if (PlaceCode::where('pc_name', '=', $request->kode_angkutan)->exists()){
+            $status = "Gagal menambahkan data, kode angkutan/ trayek sudah terpakai";
+            return redirect()->back()->with('alert', $status);
+        }
+
         // Insert Data
         $angkutan = new PlaceCode;
         $angkutan->pc_name = $request->kode_angkutan;

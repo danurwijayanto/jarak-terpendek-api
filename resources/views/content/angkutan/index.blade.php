@@ -35,7 +35,7 @@
         <div class="col-md-12 col-lg-12 col-sm-12">
             <div class="white-box">
                 @if (session('alert'))
-                    <div class="alert alert-success" role="alert">
+                    <div class="alert alert-warning" role="alert">
                         {{ session('alert') }}
                     </div>
                 @endif
@@ -95,7 +95,7 @@
             @csrf
             <div class="form-group">
                 <label for="email">Kode Angkutan :</label>
-                <input type="text" class="form-control" name="kode_angkutan">
+                <input type="text" class="form-control" name="kode_angkutan" required>
             </div>
             <div class="form-group">
                 <label for="email">Trayek :</label>
