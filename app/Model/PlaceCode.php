@@ -40,4 +40,13 @@ class PlaceCode extends Model
     {
         return $this->belongsToMany('App\Model\PlaceDetails', 'code_detail', 'pc_id', 'pd_id');
     }
+
+    
+    /**
+     * The roles that belong to the details.
+    */
+    public function details_destination()
+    {
+        return $this->belongsToMany('App\Model\PlaceDetails', 'code_detail', 'pc_id', 'pd_id_destination');
+    }
 }

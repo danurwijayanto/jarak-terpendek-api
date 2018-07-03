@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Model\PlaceDetails;
+use App\Model\CodeDetails;
 use App\Traits\Algoritm;
+use RFHaversini\Distance;
 
 class ClientController extends Controller
 {
@@ -103,6 +105,26 @@ class ClientController extends Controller
         $return_data = array();
         $return_data['maps_detail'] = array();
         $get_place = PlaceDetails::orderBy("pd_name", "asc")->get();
+        // dd($process);
+
+        // Mengholah Jalur dan Angkot yang bisa dilewati
+        // $jumlah_jalan = count($process['get_Distance']);
+        // $listData = array();
+        // $place['list-trayek'] = array();
+        // for ($i=0; $i<$jumlah_jalan-1; $i++){
+        //     $place_from = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i].'%')->first();
+        //     $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i+1].'%')->first();
+            
+        //     $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.') or (pd_id = '.$place_dest->pd_id.' and pd_id_destination = '.$place_from->pd_id.')')->get();
+            
+        //     if (count($relation) > 0){
+        //         foreach($relation as $list){
+        //             $place['list-trayek'] = [
+        //                 'pd_longitude'=> 'asdasds',
+        //             ];
+        //         }
+        //     }
+        // }
 
         foreach ($process['get_Distance'] as $data){
             $getPlace = PlaceDetails::where('pd_name', $data)->get()->toArray();
@@ -139,7 +161,7 @@ class ClientController extends Controller
                 }
             }
         }
-
+        // dd($listData);
         $countPlace = count($place);
 
         for ($i = 0; $i <= $countPlace - 1; $i++) {
@@ -184,7 +206,21 @@ class ClientController extends Controller
         $return_data['place_detail'] = json_encode($place);
         $return_data['rute'] = json_encode($rute);
         $return_data['lokasi'] = $get_place;
-
+        // dd($return_data);
         return view('contentClient.client.ruteTerpendek', $return_data);
+    }
+
+    public function hitungJarak(Request $request){
+
+        
+        $dari = $request->id_trayek_dari;
+        $ke = $request->id_trayek_tujuan;
+        
+        $detail_dari = PlaceDetails::where('pd_id', $dari)->first();
+        $detail_ke = PlaceDetails::where('pd_id', $ke)->first();
+        
+        $jarak = round(Distance::toKilometers($detail_dari->pd_latitude ,$detail_dari->pd_longitude, $detail_ke->pd_latitude, $detail_ke->pd_longitude), 2);
+        
+        return json_encode($jarak);
     }
 }

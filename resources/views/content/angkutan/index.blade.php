@@ -45,7 +45,9 @@
                             <tr>
                                 <th>#</th>
                                 <th>Kode</th>
-                                <th>Trayek</th>
+                                <th>Trayek Asal</th>
+                                <th>Trayek Tujuan</th>
+                                <th>Jarak</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -63,7 +65,29 @@
                                         </ul>
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-primary edit-angkutan-fixed" role="button" data-toggle="modal" data-target="#editAngkutan" data-trayek='{{ json_encode($list->details) }}' data-detail='{{ json_encode(array("pc_id" => $list->pc_id, "pc_name" => $list->pc_name)) }}'>Rubah</a>
+                                        <ul>
+                                            @foreach ($list->details_destination as $list_detail_dest)
+                                            <li>{{ $list_detail_dest->pd_name }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td>{{ $list->pivot }}</td>
+                                    <td>
+                                        <?php 
+                                            $data_trayek = array();
+                                            $jumlah_asal = count($list->details);
+                                            $jumlah_tujuan = count($list->details_destination);
+                                            for ($i=0; $i<$jumlah_asal; $i++){
+                                                $data_trayek[] = [
+                                                    'id_asal'=>$list->details[$i]->pd_id,
+                                                    'nama_asal'=>$list->details[$i]->pd_name,
+                                                    'id_tujuan'=>$list->details_destination[$i]->pd_id,
+                                                    'nama_tujuan'=>$list->details_destination[$i]->pd_name,
+                                                ];
+                                            }
+
+                                        ?>
+                                        <a href="#" class="btn btn-primary edit-angkutan-fixed" role="button" data-toggle="modal" data-target="#editAngkutan" data-trayek='{{ json_encode($data_trayek) }}' data-detail='{{ json_encode(array("pc_id" => $list->pc_id, "pc_name" => $list->pc_name)) }}'>Rubah</a>
                                         <a href="{{ url('admin/angkutan/hapus/'.$list->pc_id) }}" class="btn btn-danger" role="button">Hapus</a>
                                     </td>
                                 </tr>
@@ -98,7 +122,7 @@
                 <input type="text" class="form-control" name="kode_angkutan" required>
             </div>
             <div class="form-group">
-                <label for="email">Trayek :</label>
+                <label for="select-lokasi">Trayek dari:</label>
                 <!-- <select class="js-example-basic-multiple form-control" name="trayek[]" multiple="multiple"> -->
                 <select id="select-lokasi" class="form-control" name="list-lokasi">
                     @if (isset($lokasi) && !empty($lokasi))
@@ -107,11 +131,30 @@
                     @endforeach
                     @endif
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="select-tujuan">Trayek tujuan:</label>
+                <!-- <select class="js-example-basic-multiple form-control" name="trayek[]" multiple="multiple"> -->
+                <select id="select-tujuan" class="form-control" name="list-tujuan">
+                    @if (isset($lokasi) && !empty($lokasi))
+                    @foreach ($lokasi as $list)
+                        <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
+                    @endforeach
+                    @endif
+                </select>
                 <button type="button" class="btn btn-default tambah-trayek">Tambah</button>
+            </div>
+            <div class="form-group">
+                <label for="jarak">Jarak (Km) :</label>
+                <input id="jarak-trayek" type="text" class="form-control" name="jarak_trayek" readonly>
+            </div>
+            <div class="form-group">
                 <table class="table" id="tabel-trayek">
                     <thead>
                         <tr>
-                            <th>Trayek</th>
+                            <th>Trayek dari</th>
+                            <th>Trayek tujuan</th>
+                            <th>Jarak (Km)</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -148,7 +191,7 @@
                 <input type="text" class="form-control" name="kode_angkutan_edit" id="kode-angkutan-edit">
             </div>
             <div class="form-group">
-                <label for="email">Trayek :</label>
+                <label for="email">Trayek dari:</label>
                 <!-- <select id="js-example-basic-multiple-edit" class="js-example-basic-multiple form-control" name="trayek_edit[]" multiple="multiple"> -->
                 <select id="select-lokasi-edit" class="form-control" name="list-lokasi-edit">    
                     @if (isset($lokasi) && !empty($lokasi))
@@ -157,11 +200,26 @@
                     @endforeach
                     @endif
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="select-tujuan">Trayek tujuan:</label>
+                <!-- <select class="js-example-basic-multiple form-control" name="trayek[]" multiple="multiple"> -->
+                <select id="select-tujuan" class="form-control" name="list-tujuan">
+                    @if (isset($lokasi) && !empty($lokasi))
+                    @foreach ($lokasi as $list)
+                        <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
+                    @endforeach
+                    @endif
+                </select>
                 <button type="button" class="btn btn-default tambah-trayek-edit">Tambah</button>
+            </div>
+            <div class="from-group">
                 <table class="table" id="tabel-trayek-edit">
                     <thead>
                         <tr>
-                            <th>Trayek</th>
+                            <th>Trayek dari</th>
+                            <th>Trayek tujuan</th>
+                            <th>Jarak (Km)</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -183,16 +241,47 @@
 <script>
     $( document ).ready(function() {
         $('.tambah-trayek').click(function() {
-            var id_trayek = $("#select-lokasi :selected").val();
-            var trayek = $("#select-lokasi :selected").text();
-            $('<input>').attr({
-                type: 'hidden',
-                id: 'trayek_'+id_trayek,
-                name: 'trayek[]',
-                value: id_trayek
-            }).appendTo('#form-tambah-angkutan');
+            var id_trayek_dari = $("#select-lokasi :selected").val();
+            var id_trayek_tujuan = $("#select-tujuan :selected").val();
+            var trayek_dari = $("#select-lokasi :selected").text();
+            var trayek_tujuan = $("#select-tujuan :selected").text();
             
-            $("#tabel-trayek-body").append('<tr><td>'+trayek+'</td><td><a href="#" data-id='+id_trayek+' class="hapus-trayek">Hapus</a></td></tr>');
+            var formData = {
+                id_trayek_dari: id_trayek_dari,
+                id_trayek_tujuan: id_trayek_tujuan,
+            }
+            
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN':'{{csrf_token()}}'
+                }
+            });
+
+            // Kalkulasi jarak
+            $.ajax({
+                type:'POST',
+                url:'{{ url("/kalkukasi/hitungjarak") }}',
+                data:formData,
+                success:function(data){
+                    $("#jarak-trayek").val(data);
+                    
+                    var obj = { 
+                        "id_trayek_dari":id_trayek_dari, 
+                        "id_trayek_tujuan":id_trayek_tujuan, 
+                        "jarak":data
+                    };
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: id_trayek_dari+'_'+id_trayek_tujuan,
+                        name: 'trayek[]',
+                        value: JSON.stringify(obj)
+                    }).appendTo('#form-tambah-angkutan');
+                    
+                    $("#tabel-trayek-body").append('<tr><td>'+trayek_dari+'</td><td>'+trayek_tujuan+'</td><td>'+data+'</td><td><a href="#" data-id='+id_trayek_dari+'_'+id_trayek_tujuan+' class="hapus-trayek">Hapus</a></td></tr>');
+                }
+            });
+
         });
 
         $('.tambah-trayek-edit').click(function() {
@@ -257,14 +346,15 @@
             var pc_name = data['pc_name'];
             
             // Action
+            $('.row-append').remove();
             $.each( data_trayek, function( key, value ) {
-                selected.push(value['pd_id']);
-                $("#tabel-trayek-body-edit").append('<tr><td>'+value['pd_name']+'</td><td><a href="#" data-id='+value['pd_id']+' class="hapus-trayek-edit">Hapus</a></td></tr>');
+                selected.push(value['id_asal']);
+                $("#tabel-trayek-body-edit").append('<tr class="row-append"><td>'+value['nama_asal']+'</td><td>'+value['nama_tujuan']+'</td><td></td><td><a href="#" data-id='+value['id_asal']+' class="hapus-trayek-edit">Hapus</a></td></tr>');
                 $('<input>').attr({
                     type: 'hidden',
-                    id: 'trayek-edit-'+value['pd_id'],
+                    id: 'trayek-edit-'+value['id_asal'],
                     name: 'trayek_edit[]',
-                    value: value['pd_id']
+                    value: value['id_asal']
                 }).appendTo('#modal-edit-form');
             });
             

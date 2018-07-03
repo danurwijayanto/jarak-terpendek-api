@@ -33,7 +33,7 @@ class LokasiController extends Controller
 
         // Mapping
         $data['tempat'] = $get_place;
-
+        
         return view('content.lokasi.index', $data);
     }
 

@@ -29,12 +29,12 @@ trait Algoritm{
         $data = CodeDetails::whereIn('pc_id', function($query) use ($request){
             $query->select('pc_id')
             ->from('code_detail')
-            ->where('pd_id', '=', $request->tujuan)->orWhere('pd_id', '=', $request->dari)
+            // ->where('pd_id', '=', $request->tujuan)->orWhere('pd_id_destination', '=', $request->dari)
+            ->whereRaw('(pd_id = '.$request->tujuan.' and pd_id_destination = '.$request->dari.') or (pd_id = '.$request->dari.' and pd_id_destination = '.$request->tujuan.')')
             ->groupBy('pc_id');
         })->with('details')->with('details_code')->get();
 
         foreach($data as $d) {
-            // echo "</td><td>".$d->details->pd_name;
             if (in_array($d->details->pd_name,$nama_jalan)){
                 $transit['place_name'][] = $d->details->pd_name;
             }else{
@@ -42,6 +42,7 @@ trait Algoritm{
                 $lat[] = $d->details->pd_latitude;
                 $long[] = $d->details->pd_longitude;
                 
+                echo "</td><td>".$d->details->pd_name;
                 if (!in_array($d->details_code->pc_name,$transit['angkot'])){
                     $transit['angkot'][] = $d->details_code->pc_name;
                 }
@@ -56,59 +57,82 @@ trait Algoritm{
             // echo "</td></tr><tr><td>$value1";
             foreach ($nama_jalan as $key => $value) {
 
-            $nama[$key1][$key] = $value1.'-'.$value;
-        
+                $nama[$key1][$key] = $value1.'-'.$value;
             
-            if ($value == $value1) {
-                $dataf = 0;
-            }
-            
-            if ($key1>$key) {
-                // if ($key == 0 and $key1 == $jlhsas) {
-                //     $dataf = "∞";
-                // }
-                // if (($value[$key-1] != $value1) or ($value[$key+1] != $value1)){
-                //     $dataf = "∞";
-                // }
-                if (($key != 0) and (($nama_jalan[$key-1] != $value1) and ($nama_jalan[$key+1] != $value1))){
-                    $dataf = "∞";
-                }else if ($nama_jalan[$key+1] != $value1){
-                    $dataf = "∞";
-                }else{
-                    $asala   = $lat[$key].",".$long[$key];
-                    $tujuana =  $lat[$key1].",".$long[$key1];
-                    $jarak = Distance::toKilometers($lat[$key] ,$long[$key], $lat[$key1], $long[$key1]);
-                    
-                    $dataf = $jarak;
-                    //include "distans.php";
-                }
-        
-                // echo "</td><td align='right'>".$dataf;//.' >'.$key.','.$key1;//.'='.$nama[$key][$key1];
-            }
-            elseif ($key1 == $key) {
-                $dataf=0;
-                // echo "</td><td align='right'>".$dataf;
-            }
-            else{
-                // if ($key1 == 0 and $key == $jlhsas) {
-                //     $dataf = "∞";
-                // }
-                if (($key1 != 0) and (($nama_jalan[$key1-1] != $value) and ($nama_jalan[$key1+1] != $value))){
-                    $dataf = "∞";
-                }else if ($nama_jalan[$key1+1] != $value){
-                    $dataf = "∞";
-                }else{
-                    $asala   = $lat[$key1].",".$long[$key1];
-                    $tujuana =  $lat[$key].",".$long[$key];
-                    $jarak = Distance::toKilometers($lat[$key] ,$long[$key], $lat[$key1], $long[$key1]);
-                    $dataf = $jarak;
-                    //include "distans.php";
-                }
-        
-                // echo "</td><td align='right'>".$dataf;//. ' > '.$key1.','.$key;//.'='.$nama[$key1][$key];
-            }
                 
-            $graph[$key1][] = str_replace(" km", "", str_replace(",", ".", $dataf));
+                if ($value == $value1) {
+                    $dataf = 0;
+                }
+                
+                if ($key1>$key) {
+                    // if ($key == 0 and $key1 == $jlhsas) {
+                    //     $dataf = "∞";
+                    // }
+                    // if (($value[$key-1] != $value1) or ($value[$key+1] != $value1)){
+                    //     $dataf = "∞";
+                    // }
+                    $place_from = PlaceDetails::where('pd_name', 'like', '%'.$value1.'%')->first();
+                    $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$value.'%')->first();
+                    
+                    $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.') or (pd_id = '.$place_dest->pd_id.' and pd_id_destination = '.$place_from->pd_id.')')->first();
+                    
+                    if (count($relation) > 0){
+                        $dataf = $relation->distance;
+                    }else{
+                        $dataf = "∞";
+                    }
+
+                    // if (($key != 0) and (($nama_jalan[$key-1] != $value1) and ($nama_jalan[$key+1] != $value1))){
+                    //     $dataf = "∞";
+                    // }else if ($nama_jalan[$key+1] != $value1){
+                    //     $dataf = "∞";
+                    // }else{
+                    //     $asala   = $lat[$key].",".$long[$key];
+                    //     $tujuana =  $lat[$key1].",".$long[$key1];
+                    //     $jarak = Distance::toKilometers($lat[$key] ,$long[$key], $lat[$key1], $long[$key1]);
+                        
+                    //     $dataf = $jarak;
+                    //     //include "distans.php";
+                    // }
+            
+                    // echo "</td><td align='right'>".$dataf;//.' >'.$key.','.$key1;//.'='.$nama[$key][$key1];
+                }
+                elseif ($key1 == $key) {
+                    $dataf=0;
+                    // echo "</td><td align='right'>".$dataf;
+                }
+                else{
+                    // if ($key1 == 0 and $key == $jlhsas) {
+                    //     $dataf = "∞";
+                    // }
+
+                    $place_from = PlaceDetails::where('pd_name', 'like', '%'.$value1.'%')->first();
+                    $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$value.'%')->first();
+                    
+                    $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.') or (pd_id = '.$place_dest->pd_id.' and pd_id_destination = '.$place_from->pd_id.')')->first();
+                    
+                    if (count($relation) > 0){
+                        $dataf = $relation->distance;
+                    }else{
+                        $dataf = "∞";
+                    }
+
+                    // if (($key1 != 0) and (($nama_jalan[$key1-1] != $value) and ($nama_jalan[$key1+1] != $value))){
+                    //     $dataf = "∞";
+                    // }else if ($nama_jalan[$key1+1] != $value){
+                    //     $dataf = "∞";
+                    // }else{
+                    //     $asala   = $lat[$key1].",".$long[$key1];
+                    //     $tujuana =  $lat[$key].",".$long[$key];
+                    //     $jarak = Distance::toKilometers($lat[$key] ,$long[$key], $lat[$key1], $long[$key1]);
+                    //     $dataf = $jarak;
+                    //     //include "distans.php";
+                    // }
+            
+                    // echo "</td><td align='right'>".$dataf;//. ' > '.$key1.','.$key;//.'='.$nama[$key1][$key];
+                }
+                    
+                $graph[$key1][] = str_replace(" km", "", str_replace(",", ".", $dataf));
             }
             $nodes[] = $value1;
             $n++;

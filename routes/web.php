@@ -21,6 +21,7 @@ Auth::routes();
 
 Route::get('/', 'Client\ClientController@index');
 Route::post('/proses', 'Client\ClientController@calculate');
+Route::post('/kalkukasi/hitungjarak/', 'Client\ClientController@hitungJarak');
 
 Route::prefix('admin')->group(function () {
 

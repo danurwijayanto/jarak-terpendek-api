@@ -365,6 +365,8 @@ class ComposerStaticInit5dea5c488c1f3c922168668683bf6ade
         'App\\Model\\CodeDetails' => __DIR__ . '/../..' . '/app/Model/CodeDetails.php',
         'App\\Model\\PlaceCode' => __DIR__ . '/../..' . '/app/Model/PlaceCode.php',
         'App\\Model\\PlaceDetails' => __DIR__ . '/../..' . '/app/Model/PlaceDetails.php',
+        'App\\Plugins\\FloydWarshall' => __DIR__ . '/../..' . '/app/Plugins/FloydWarshall.php',
+        'App\\Plugins\\FloydWarshallOriginal' => __DIR__ . '/../..' . '/app/Plugins/FloydWarshallOriginal.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AuthServiceProvider.php',
         'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',

@@ -27,6 +27,8 @@ return array(
     'App\\Model\\CodeDetails' => $baseDir . '/app/Model/CodeDetails.php',
     'App\\Model\\PlaceCode' => $baseDir . '/app/Model/PlaceCode.php',
     'App\\Model\\PlaceDetails' => $baseDir . '/app/Model/PlaceDetails.php',
+    'App\\Plugins\\FloydWarshall' => $baseDir . '/app/Plugins/FloydWarshall.php',
+    'App\\Plugins\\FloydWarshallOriginal' => $baseDir . '/app/Plugins/FloydWarshallOriginal.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
     'App\\Providers\\AuthServiceProvider' => $baseDir . '/app/Providers/AuthServiceProvider.php',
     'App\\Providers\\BroadcastServiceProvider' => $baseDir . '/app/Providers/BroadcastServiceProvider.php',

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Model\PlaceCode;
 use App\Model\PlaceDetails;
 use App\Model\CodeDetails;
+use RFHaversini\Distance;
 
 class AngkutanController extends Controller
 {
@@ -31,12 +32,14 @@ class AngkutanController extends Controller
         $data = array();
         
         // Get Data
-        $get_angkutan = PlaceCode::with('details')->paginate(5);
+        $get_angkutan = PlaceCode::with('details')->with('details_destination')->paginate(5);
         $get_lokasi = PlaceDetails::orderBy("pd_name", "asc")->get();
+        // $get_relation = CodeDetails::with('details')->with('details_code')->with('details_destination')->paginate(5);
 
         // Mapping
         $data['angkutan'] = $get_angkutan;
         $data['lokasi'] = $get_lokasi;
+        // $data['relation'] = $get_relation;
 
         return view('content.angkutan.index', $data);
     }
@@ -64,23 +67,27 @@ class AngkutanController extends Controller
             $status = "Gagal menambahkan data, harap mengisi data trayek";
             return redirect()->back()->with('alert', $status);
         }
-
+        
         // dd($find_angkutan);
         if (PlaceCode::where('pc_name', '=', $request->kode_angkutan)->exists()){
             $status = "Gagal menambahkan data, kode angkutan/ trayek sudah terpakai";
             return redirect()->back()->with('alert', $status);
         }
-
+        
         // Insert Data
         $angkutan = new PlaceCode;
         $angkutan->pc_name = $request->kode_angkutan;
         if ($angkutan->save()){
             $id_angkutan = $angkutan->pc_id;
             
-            foreach ($request->trayek as $list => $key){
+            foreach ($request->trayek as $list){
+                $decode = json_decode($list, true);
+
                 $code_details = new CodeDetails;
                 $code_details->pc_id = $id_angkutan;
-                $code_details->pd_id = $key;
+                $code_details->pd_id = $decode['id_trayek_dari'];
+                $code_details->pd_id_destination = $decode['id_trayek_tujuan'];
+                $code_details->distance = $decode['jarak'];
                 $code_details->save();
             }
 
@@ -183,4 +190,5 @@ class AngkutanController extends Controller
         // Return
         return redirect()->back()->with('alert', $status);
     }
+
 }
