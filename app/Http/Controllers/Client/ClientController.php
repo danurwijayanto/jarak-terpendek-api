@@ -108,24 +108,38 @@ class ClientController extends Controller
         // dd($process);
 
         // Mengholah Jalur dan Angkot yang bisa dilewati
-        // $jumlah_jalan = count($process['get_Distance']);
-        // $listData = array();
-        // $place['list-trayek'] = array();
-        // for ($i=0; $i<$jumlah_jalan-1; $i++){
-        //     $place_from = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i].'%')->first();
-        //     $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i+1].'%')->first();
+        $jumlah_jalan = count($process['get_Distance']);
+        for ($i=0; $i<$jumlah_jalan-1; $i++){
+            $place_from = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i].'%')->first();
+            $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i+1].'%')->first();
             
-        //     $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.') or (pd_id = '.$place_dest->pd_id.' and pd_id_destination = '.$place_from->pd_id.')')->get();
-            
-        //     if (count($relation) > 0){
-        //         foreach($relation as $list){
-        //             $place['list-trayek'] = [
-        //                 'pd_longitude'=> 'asdasds',
-        //             ];
-        //         }
-        //     }
-        // }
-
+            $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.')')->with('details')->with('details_code')->with('details_destination')->get();
+            $jumlah_relasi = count($relation);
+            if ($jumlah_relasi > 0){
+                for ($j=0; $j<$jumlah_relasi; $j++){
+                    if ($i == 0){
+                        $status = 'naik';
+                    }elseif($rute[$i-1]['nama_angkot'] != $relation[$j]->details_code->pc_name){
+                        $status = 'pindah';
+                    }
+                    $rute[] = [
+                        'nama_tempat' => $relation[$j]->details->pd_name,
+                        'nama_angkot' => $relation[$j]->details_code->pc_name,
+                        'status' => $status
+                    ];
+                    if ($i == $jumlah_jalan-2){
+                        $status = 'turun';
+                        $rute[] = [
+                            'nama_tempat' => $relation[$j]->details_destination->pd_name,
+                            'nama_angkot' => $relation[$j]->details_code->pc_name,
+                            'status' => $status
+                        ];
+                    }
+                }
+            }
+        }
+        // End Mengholah Jalur dan Angkot yang bisa dilewati
+    
         foreach ($process['get_Distance'] as $data){
             $getPlace = PlaceDetails::where('pd_name', $data)->get()->toArray();
             foreach ($getPlace as $listData){

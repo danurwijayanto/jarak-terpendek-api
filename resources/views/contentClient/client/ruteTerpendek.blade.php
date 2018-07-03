@@ -14,11 +14,18 @@
     <div class="row bg-title">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <?php
-                if (!empty($place_detail)){
-                    $rute = json_decode($place_detail, true);
+                // if (!empty($place_detail)){
+                //     $rute = json_decode($place_detail, true);
+                //     $count = count($rute);
+                //     $from_destination = $rute[0]['nama_daerah'];
+                //     $to_destination = $rute[$count - 1]['nama_daerah'];
+                // }
+
+                if (!empty($rute)){
+                    $rute = json_decode($rute, true);
                     $count = count($rute);
-                    $from_destination = $rute[0]['nama_daerah'];
-                    $to_destination = $rute[$count - 1]['nama_daerah'];
+                    $from_destination = $rute[0]['nama_tempat'];
+                    $to_destination = $rute[$count - 1]['nama_tempat'];
                 }
             ?>
             <h3>Rute dari : {{ $from_destination }}  menuju : {{ $to_destination }}</h3> </div>
@@ -45,14 +52,14 @@
                             $index = 0;
                             foreach ($rute as $a){
                                 if ($index == 0){
-                                    echo "Naik ".$a['nama_trayek']."<br>";
+                                    echo "Naik ".$a['nama_angkot']."<br>";
                                 }
                                 if ($a['status'] == "pindah"){
-                                    echo "Kemudian turun di ".$a['nama_daerah']."<br>";
-                                    echo "Kemudian naik ".$a['nama_trayek']."<br>";
+                                    echo "Kemudian turun di ".$a['nama_tempat']."<br>";
+                                    echo "Kemudian naik ".$a['nama_angkot']."<br>";
                                 }
                                 if ($index == $count-1){
-                                    echo "Kemudian turun dan sampai di  ".$a['nama_daerah']."<br>";
+                                    echo "Kemudian turun dan sampai di  ".$a['nama_tempat']."<br>";
                                 }
                                 $index++;  
                             }     

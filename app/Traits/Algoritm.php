@@ -26,29 +26,30 @@ trait Algoritm{
         $lat = array();
         $lon = array();
        
-        $data = CodeDetails::whereIn('pc_id', function($query) use ($request){
-            $query->select('pc_id')
-            ->from('code_detail')
+        // $data = CodeDetails::whereIn('pc_id', function($query) use ($request){
+        $data = CodeDetails::get();
+            // $query->select('pc_id')
+            // ->from('code_detail')
             // ->where('pd_id', '=', $request->tujuan)->orWhere('pd_id_destination', '=', $request->dari)
-            ->whereRaw('(pd_id = '.$request->tujuan.' and pd_id_destination = '.$request->dari.') or (pd_id = '.$request->dari.' and pd_id_destination = '.$request->tujuan.')')
-            ->groupBy('pc_id');
-        })->with('details')->with('details_code')->get();
-
+            // ->whereRaw('(pd_id = '.$request->tujuan.' and pd_id_destination = '.$request->dari.') or (pd_id = '.$request->dari.' and pd_id_destination = '.$request->tujuan.')')
+            // ->groupBy('pc_id');
+        // })->with('details')->with('details_code')->get();
+        // dd($data);
         foreach($data as $d) {
             if (in_array($d->details->pd_name,$nama_jalan)){
-                $transit['place_name'][] = $d->details->pd_name;
+                // $transit['place_name'][] = $d->details->pd_name;
             }else{
                 $nama_jalan[] = $d->details->pd_name;
                 $lat[] = $d->details->pd_latitude;
                 $long[] = $d->details->pd_longitude;
                 
-                echo "</td><td>".$d->details->pd_name;
-                if (!in_array($d->details_code->pc_name,$transit['angkot'])){
-                    $transit['angkot'][] = $d->details_code->pc_name;
-                }
+                // echo "</td><td>".$d->details->pd_name;
+                // if (!in_array($d->details_code->pc_name,$transit['angkot'])){
+                //     $transit['angkot'][] = $d->details_code->pc_name;
+                // }
             }
         }
-
+        // dd($nama_jalan);
 
         $jlhsas = count($nama_jalan)-1;
         //dd($nama_jalan);
@@ -143,10 +144,31 @@ trait Algoritm{
         $index_destination =  array_search($destination->pd_name, $nama_jalan);
         // echo "<br><br>";
         $return_data['get_Distance'] = $this->getDistanceOriginal($graph, $nodes, $index_from, $index_destination);
+        
+        // Mengholah Jalur dan Angkot yang bisa dilewati
+        $jumlah_jalan = count($return_data['get_Distance']);
+        $transit['place_name'] = $return_data['get_Distance'];
+        
+        for ($i=0; $i<$jumlah_jalan-1; $i++){
+            $place_from = PlaceDetails::where('pd_name', 'like', '%'.$return_data['get_Distance'][$i].'%')->first();
+            $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$return_data['get_Distance'][$i+1].'%')->first();
+            
+            $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.') or (pd_id = '.$place_dest->pd_id.' and pd_id_destination = '.$place_from->pd_id.')')->with('details_code')->get();
+            // dd($relation);
+            if (count($relation) > 0){
+                foreach($relation as $list){
+                    if (!in_array($list->details_code->pc_name,$transit['angkot'])){
+                        $transit['angkot'][] = $list->details_code->pc_name;
+                    }
+                }
+            }
+        }
+
         $return_data['transit'] = $transit;
+        
         return $return_data;
     }
-
+    
     public function getDistance(Request $request){
         // Define variabel
         $from = $request->dari;
