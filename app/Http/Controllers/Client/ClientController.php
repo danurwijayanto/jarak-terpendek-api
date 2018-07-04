@@ -98,7 +98,9 @@ class ClientController extends Controller
         $process = ($this->algoritm_index($request));
         $group = array();
         $place = array();
-        $rute = array();
+        // $rute = array();
+        $new_rute = array();
+        $temporary_new_rute = array();
         $angkot = '';
         $index = 0;
 
@@ -107,8 +109,25 @@ class ClientController extends Controller
         $get_place = PlaceDetails::orderBy("pd_name", "asc")->get();
         // dd($process);
 
-        // Mengholah Jalur dan Angkot yang bisa dilewati
+        // Mengholah Jalur dan Angkot yang bisa dilewati (Rute)
         $jumlah_jalan = count($process['get_Distance']);
+        $jumlah_jalur = 1;
+        //1. Menghitung jenis jalur yang berbeda - beda
+        for ($i=0; $i<$jumlah_jalan-1; $i++){
+            $place_from = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i].'%')->first();
+            $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i+1].'%')->first();
+            
+            $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.')')->with('details')->with('details_code')->with('details_destination')->get();
+            $jumlah_relasi = count($relation);
+            $jumlah_jalur = $jumlah_jalur * $jumlah_relasi;
+        }
+        for ($i=0; $i<$jumlah_jalur; $i++){
+            $temporary_new_rute[$i] = array();
+            $new_rute[$i] = array();
+        }
+
+        // 2. Memasukkan jalur ke array sesuai $jumlah
+        $index_array = 0;
         for ($i=0; $i<$jumlah_jalan-1; $i++){
             $place_from = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i].'%')->first();
             $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$process['get_Distance'][$i+1].'%')->first();
@@ -116,30 +135,85 @@ class ClientController extends Controller
             $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.')')->with('details')->with('details_code')->with('details_destination')->get();
             $jumlah_relasi = count($relation);
             if ($jumlah_relasi > 0){
-                for ($j=0; $j<$jumlah_relasi; $j++){
-                    if ($i == 0){
-                        $status = 'naik';
-                    }elseif($rute[$i-1]['nama_angkot'] != $relation[$j]->details_code->pc_name){
-                        $status = 'pindah';
-                    }
-                    $rute[] = [
-                        'nama_tempat' => $relation[$j]->details->pd_name,
-                        'nama_angkot' => $relation[$j]->details_code->pc_name,
-                        'status' => $status
-                    ];
-                    if ($i == $jumlah_jalan-2){
-                        $status = 'turun';
+                // for ($k=0; $k<$jumlah_jalur; $k++){
+                    // $new_rute[$k] = array();
+                    for ($j=0; $j<$jumlah_relasi; $j++){
+                        // Jika jumlah jalur lebih dari 1 
+                        if ($jumlah_jalur > 1){
+                            $rute = array();
+                        }
+
+                        if ($i == 0){
+                            $status = 'naik';
+                        }elseif($rute[$i-1]['nama_angkot'] != $relation[$j]->details_code->pc_name){
+                            $status = 'pindah';
+                        }
+
                         $rute[] = [
-                            'nama_tempat' => $relation[$j]->details_destination->pd_name,
+                            'nama_tempat' => $relation[$j]->details->pd_name,
                             'nama_angkot' => $relation[$j]->details_code->pc_name,
+                            'longitude' => $relation[$j]->details_destination->pd_longitude,
+                            'latitude' => $relation[$j]->details_destination->pd_latitude,
                             'status' => $status
                         ];
+                        if ($i == $jumlah_jalan-2){
+                            $status = 'turun';
+                            $rute[] = [
+                                'nama_tempat' => $relation[$j]->details_destination->pd_name,
+                                'nama_angkot' => $relation[$j]->details_code->pc_name,
+                                'longitude' => $relation[$j]->details_destination->pd_longitude,
+                                'latitude' => $relation[$j]->details_destination->pd_latitude,
+                                'status' => $status
+                            ];
+                        }
+                        // dd($new_rute[$index_array]);
+                        // for ($k=0; $k<$jumlah_jalur; $k++){
+                        // Jika jumlah jalur lebih dari 1 
+                        if ($jumlah_jalur > 1){
+                            array_push($new_rute[$index_array],$rute);
+                            if  ($jumlah_relasi < $jumlah_jalur){
+                                $index_array++;
+                                for ($k=$index_array; $k<$jumlah_jalur; $k++){
+                                    array_push($new_rute[$index_array],$rute);
+                                }
+                            }
+                            // dd($new_rute);
+                            $index_array++;
+                            // dd($jumlah_jalur);
+                            if ($index_array >= $jumlah_jalur){
+                                $index_array = 0;
+                            }
+                        }else{
+                            $new_rute = $rute;
+                        }
+                            // }
+                        // break;
+                    }
+                    // $new_rute[$k][] = $rute;
+                // }
+            }
+        }
+
+        // 2. Mengolah array $new_rute
+        if ($jumlah_jalur<=1){
+            foreach ($new_rute as $data){
+                // dd($data);
+                for ($i=0; $i<$jumlah_jalur; $i++){
+                    array_push($temporary_new_rute[$i], $data);
+                }
+            }
+        }else{
+            for ($i=0; $i<$jumlah_jalur; $i++){
+                foreach ($new_rute[$i] as $data){
+                    foreach ($data as $subdata){
+                        array_push($temporary_new_rute[$i], $subdata);
                     }
                 }
             }
         }
+        $new_rute = $temporary_new_rute;
+        // dd($new_rute);
         // End Mengholah Jalur dan Angkot yang bisa dilewati
-    
         foreach ($process['get_Distance'] as $data){
             $getPlace = PlaceDetails::where('pd_name', $data)->get()->toArray();
             foreach ($getPlace as $listData){
@@ -219,7 +293,9 @@ class ClientController extends Controller
         $return_data['maps_detail'] = json_encode($return_data['maps_detail']);
         $return_data['place_detail'] = json_encode($place);
         $return_data['rute'] = json_encode($rute);
+        $return_data['new_rute'] = json_encode($new_rute);
         $return_data['lokasi'] = $get_place;
+
         // dd($return_data);
         return view('contentClient.client.ruteTerpendek', $return_data);
     }
