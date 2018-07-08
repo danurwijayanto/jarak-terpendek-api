@@ -24,6 +24,7 @@ class ClientController extends Controller
 
         // Mapping
         $data['lokasi'] = $get_place;
+        $data['home'] = true;
 
         return view('contentClient.client.index', $data);
     }
