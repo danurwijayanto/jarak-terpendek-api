@@ -43,7 +43,7 @@
     foreach ($new_rute as $list){
     ?>
     <!-- panggil javascript saat halaman dibuka -->
-    <body onload="initialize_{{$index_rute}}()">
+    <!-- <body onload="initialize_{{$index_rute}}()"> -->
     <!-- ukuran lebar peta 100 dan tinggi 400px-->
     <div class="row">
         <div class="col-sm-12">
@@ -98,7 +98,7 @@
 
     var tengahpeta = new google.maps.LatLng(data[0]['latitude'],data[0]['longitude']);
 
-    var marker;
+    // var marker;
     // var map;
 
     // Functi untuk decoding level encoding polyline 
@@ -117,14 +117,14 @@
     if (count($new_rute>0)){   
         foreach ($new_rute as $list){
     ?>
-    function initialize_{{$index_rute_js}}() {
-        var mapOptions = {
+    // function initialize_{{$index_rute_js}}() {
+        var mapOptions_{{$index_rute_js}} = {
             zoom: 15,
             mapTypeId: google.maps.MapTypeId.ROADMAP,
             center: tengahpeta
         };
 
-        var map_{{$index_rute_js}} = new google.maps.Map(document.getElementById("map_canvas_{{$index_rute_js}}"),mapOptions);
+        var map_{{$index_rute_js}} = new google.maps.Map(document.getElementById("map_canvas_{{$index_rute_js}}"),mapOptions_{{$index_rute_js}});
         
         jQuery.each( node, function( key, value ) {
             var markerPoint = new google.maps.LatLng(value['pd_latitude'],value['pd_longitude']);
@@ -138,7 +138,7 @@
                 information += 'naik trayek '+value['nama_trayek']+'<br>';
             }
             /*maker */
-            marker = new google.maps.Marker({
+            var marker = new google.maps.Marker({
                 map:map_{{$index_rute_js}},
                 draggable:false,
 
@@ -171,7 +171,7 @@
             /* gambarkan polyline di peta */
             Poly.setMap(map_{{$index_rute_js}});
         });
-    }
+    // }
     <?php
         $index_rute_js++;
         }
