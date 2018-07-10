@@ -47,7 +47,7 @@
                                 <th>Kode</th>
                                 <th>Trayek Asal</th>
                                 <th>Trayek Tujuan</th>
-                                <th>Jarak</th>
+                                <th>Jarak (Km)</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -71,7 +71,11 @@
                                             @endforeach
                                         </ul>
                                     </td>
-                                    <td>{{ $list->pivot }}</td>
+                                    <td><ul>
+                                            @foreach ($list->details_destination as $list_detail_dest)
+                                            {{ $list_detail_dest->pivot->distance }}<br>
+                                            @endforeach
+                                        </ul></td>
                                     <td>
                                         <?php 
                                             $data_trayek = array();
@@ -83,6 +87,7 @@
                                                     'nama_asal'=>$list->details[$i]->pd_name,
                                                     'id_tujuan'=>$list->details_destination[$i]->pd_id,
                                                     'nama_tujuan'=>$list->details_destination[$i]->pd_name,
+                                                    'jarak'=>$list->details_destination[$i]->pivot->distance,
                                                 ];
                                             }
 
@@ -204,7 +209,7 @@
             <div class="form-group">
                 <label for="select-tujuan">Trayek tujuan:</label>
                 <!-- <select class="js-example-basic-multiple form-control" name="trayek[]" multiple="multiple"> -->
-                <select id="select-tujuan" class="form-control" name="list-tujuan">
+                <select id="select-tujuan-edit" class="form-control" name="list-tujuan-edit">
                     @if (isset($lokasi) && !empty($lokasi))
                     @foreach ($lokasi as $list)
                         <option value="{{ $list->pd_id }}">{{ $list->pd_name }}</option>
@@ -212,6 +217,10 @@
                     @endif
                 </select>
                 <button type="button" class="btn btn-default tambah-trayek-edit">Tambah</button>
+            </div>
+            <div class="form-group">
+                <label for="jarak">Jarak (Km) :</label>
+                <input id="jarak-trayek-edit" type="text" class="form-control" name="jarak_trayek" readonly>
             </div>
             <div class="from-group">
                 <table class="table" id="tabel-trayek-edit">
@@ -285,16 +294,56 @@
         });
 
         $('.tambah-trayek-edit').click(function() {
-            var id_trayek = $("#select-lokasi-edit :selected").val();
-            var trayek = $("#select-lokasi-edit :selected").text();
-            $('<input>').attr({
-                type: 'hidden',
-                id: 'trayek-edit-'+id_trayek,
-                name: 'trayek_edit[]',
-                value: id_trayek
-            }).appendTo('#modal-edit-form');
+            var trayek_dari = $("#select-lokasi-edit :selected").text();
+            var trayek_tujuan = $("#select-tujuan-edit :selected").text();
+            var id_trayek_dari = $("#select-lokasi-edit :selected").val();
+            var id_trayek_tujuan = $("#select-tujuan-edit :selected").val();
+
+            var formData = {
+                id_trayek_dari: id_trayek_dari,
+                id_trayek_tujuan: id_trayek_tujuan,
+            }
             
-            $("#tabel-trayek-body-edit").append('<tr><td>'+trayek+'</td><td><a href="#" data-id='+id_trayek+' class="hapus-trayek-edit">Hapus</a></td></tr>');
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN':'{{csrf_token()}}'
+                }
+            });
+            
+            // Kalkulasi jarak
+            $.ajax({
+                type:'POST',
+                url:'{{ url("/kalkukasi/hitungjarak") }}',
+                data:formData,
+                success:function(data){
+
+                    $("#jarak-trayek-edit").val(data);
+                    
+                    var obj = { 
+                        "id_trayek_dari":id_trayek_dari, 
+                        "id_trayek_tujuan":id_trayek_tujuan, 
+                        "jarak":data
+                    };
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: id_trayek_dari+'_'+id_trayek_tujuan,
+                        name: 'trayek_edit[]',
+                        value: JSON.stringify(obj)
+                    }).appendTo('#modal-edit-form');
+                    
+                    $("#tabel-trayek-body-edit").append('<tr><td>'+trayek_dari+'</td><td>'+trayek_tujuan+'</td><td>'+data+'</td><td><a href="#" data-id='+id_trayek_dari+'_'+id_trayek_tujuan+' class="hapus-trayek-edit">Hapus</a></td></tr>');
+                }
+            });
+
+            // $('<input>').attr({
+            //     type: 'hidden',
+            //     id: 'trayek-edit-'+id_trayek,
+            //     name: 'trayek_edit[]',
+            //     value: id_trayek
+            // }).appendTo('#modal-edit-form');
+            
+            // $("#tabel-trayek-body-edit").append('<tr><td>'+trayek_dari+'</td><td><a href="#" data-id='+id_trayek_dari+'_'+id_trayek_tujuan+' class="hapus-trayek-edit">Hapus</a></td></tr>');
         });
         
         $('#tabel-trayek-body').on('click', '.hapus-trayek', function() {
@@ -305,8 +354,9 @@
 
         $('#tabel-trayek-body-edit').on('click', '.hapus-trayek-edit', function() {
             var id_trayek = $(this).data('id'); 
+            console.log(id_trayek);
             $(this).parent().parent().remove();
-            $('#trayek-edit-'+id_trayek).remove();
+            $('#'+id_trayek).remove();
         });
 
         $('.js-example-basic-multiple').select2({
@@ -339,22 +389,28 @@
             // Retreive data
             var data = $(this).data('detail');
             var data_trayek = $(this).data('trayek');
-            var selected = [];
-                                        
+            // var selected = [];
+            // console.log(data_trayek);                              
             // Read Data
             var pc_id = data['pc_id'];
             var pc_name = data['pc_name'];
-            
+
             // Action
             $('.row-append').remove();
             $.each( data_trayek, function( key, value ) {
-                selected.push(value['id_asal']);
-                $("#tabel-trayek-body-edit").append('<tr class="row-append"><td>'+value['nama_asal']+'</td><td>'+value['nama_tujuan']+'</td><td></td><td><a href="#" data-id='+value['id_asal']+' class="hapus-trayek-edit">Hapus</a></td></tr>');
+                // selected.push(value['id_asal']);
+                var obj = { 
+                    "id_trayek_dari":value['id_asal'], 
+                    "id_trayek_tujuan":value['id_tujuan'], 
+                    "jarak":value['jarak']
+                };
+
+                $("#tabel-trayek-body-edit").append('<tr class="row-append"><td>'+value['nama_asal']+'</td><td>'+value['nama_tujuan']+'</td><td>'+value['jarak']+'</td><td><a href="#" data-id=trayek-edit-'+value['id_asal']+'_'+value['id_tujuan']+' class="hapus-trayek-edit">Hapus</a></td></tr>');
                 $('<input>').attr({
                     type: 'hidden',
-                    id: 'trayek-edit-'+value['id_asal'],
+                    id: 'trayek-edit-'+value['id_asal']+'_'+value['id_tujuan'],
                     name: 'trayek_edit[]',
-                    value: value['id_asal']
+                    value: JSON.stringify(obj)
                 }).appendTo('#modal-edit-form');
             });
             

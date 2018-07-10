@@ -47,6 +47,6 @@ class PlaceCode extends Model
     */
     public function details_destination()
     {
-        return $this->belongsToMany('App\Model\PlaceDetails', 'code_detail', 'pc_id', 'pd_id_destination');
+        return $this->belongsToMany('App\Model\PlaceDetails', 'code_detail', 'pc_id', 'pd_id_destination')->withPivot('distance');
     }
 }

@@ -132,20 +132,28 @@ class AngkutanController extends Controller
         $pc_name = isset($_GET['kode_angkutan_edit']) ? $_GET['kode_angkutan_edit'] : '';
         $trayek_id = isset($_GET['trayek_edit']) ? $_GET['trayek_edit'] : '';
         $status = '';
+
         // Action
         $edit = PlaceCode::where('pc_id', $id)->update(['pc_name' => $pc_name]);
         
         if (!empty($trayek_id)){
             // Hapus relasi sebelumnya
             $delete_relations = CodeDetails::where('pc_id', $id)->delete();
-            
+
             // Insert relasi dengan data baru
-            foreach ($trayek_id as $list => $key){
-    
-                $code_details = new CodeDetails;
-                $code_details->pc_id = $id;
-                $code_details->pd_id = $key;
-                $code_details->save();
+            if (!empty($trayek_id)){
+                foreach ($trayek_id as $list){
+                    $list_data = json_decode($list, true);
+                    
+                    if (is_array($list_data)){
+                        $code_details = new CodeDetails;
+                        $code_details->pc_id = $id;
+                        $code_details->pd_id = $list_data['id_trayek_dari'] or '';
+                        $code_details->pd_id_destination = $list_data['id_trayek_tujuan'] or '';
+                        $code_details->distance = $list_data['jarak'] or '';
+                        $code_details->save();
+                    }
+                }
             }
         }else{
             // Hapus relasi semua
@@ -177,13 +185,14 @@ class AngkutanController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
+    {   
         // Variable
         $id = !empty($id) ? $id : '';
         $status = '';
 
         // Action
         $delete = PlaceCode::where('pc_id', $id)->delete();
+        $delete = CodeDetails::where('pc_id', $id)->delete();
 
         $delete ? $status = 'Data berhasil dihapus' : $status = 'fail';
 
