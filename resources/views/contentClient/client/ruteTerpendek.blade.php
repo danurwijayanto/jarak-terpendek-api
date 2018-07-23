@@ -55,6 +55,7 @@
                     <?php
                         if (isset($list)){
                             $index = 0;
+                            $count_new_route = count($list);
                             foreach ($list as $a){
                                 if ($index == 0){
                                     echo "Naik ".$a['nama_angkot']." di ".$a['nama_tempat']."<br>";
@@ -63,7 +64,7 @@
                                     echo "Kemudian turun di ".$a['nama_tempat']."<br>";
                                     echo "Kemudian naik ".$a['nama_angkot']."<br>";
                                 }
-                                if ($index == $count-1){
+                                if ($index == $count_new_route-1){
                                     echo "Kemudian turun dan sampai di  ".$a['nama_tempat']."<br>";
                                 }
                                 $index++;  
