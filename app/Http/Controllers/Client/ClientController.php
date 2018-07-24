@@ -220,42 +220,50 @@ class ClientController extends Controller
 
         // End Mengholah Jalur dan Angkot yang bisa dilewati
         
-        foreach ($process['get_Distance'] as $data){
-            $getPlace = PlaceDetails::where('pd_name', $data)->get()->toArray();
-            foreach ($getPlace as $listData){
-                // $place[] =  $listData;
+        // foreach ($process['get_Distance'] as $data){
+        //     $getPlace = PlaceDetails::where('pd_name', $data)->get()->toArray();
+        //     foreach ($getPlace as $listData){
+        //         // $place[] =  $listData;
                 
-                if (!empty($process['transit']['place_name'])){
-                    foreach ($process['transit']['place_name'] as $transit){
-                        if ($data != $transit){
-                            $trayek = $process['transit']['angkot'][$index];
-                            $status = '';
-                        }else{
-                            $index++;
-                            if (isset($process['transit']['angkot'][$index])){
-                                $trayek = $process['transit']['angkot'][$index];
-                                $status = 'pindah';
-                            }
-                        }
-                        $listData['nama_daerah'] = $data;
-                        $listData['nama_trayek'] = $trayek;
-                        $listData['status'] = $status;
+        //         if (!empty($process['transit']['place_name'])){
+        //             foreach ($process['transit']['place_name'] as $transit){
+        //                 if ($data != $transit){
+        //                     $trayek = $process['transit']['angkot'][$index];
+        //                     $status = '';
+        //                 }else{
+        //                     $index++;
+        //                     if (isset($process['transit']['angkot'][$index])){
+        //                         $trayek = $process['transit']['angkot'][$index];
+        //                         $status = 'pindah';
+        //                     }
+        //                 }
+        //                 $listData['nama_daerah'] = $data;
+        //                 $listData['nama_trayek'] = $trayek;
+        //                 $listData['status'] = $status;
                         
-                        $place[] =  $listData;
-                    }
-                }else{
-                    $trayek = isset($process['transit']['angkot'][0]) ? $process['transit']['angkot'][0] : '';
-                    $status = '';
+        //                 $place[] =  $listData;
+        //             }
+        //         }else{
+        //             $trayek = isset($process['transit']['angkot'][0]) ? $process['transit']['angkot'][0] : '';
+        //             $status = '';
                     
-                    $listData['nama_daerah'] = $data;
-                    $listData['nama_trayek'] = $trayek;
-                    $listData['status'] = $status;
+        //             $listData['nama_daerah'] = $data;
+        //             $listData['nama_trayek'] = $trayek;
+        //             $listData['status'] = $status;
 
-                    $place[] =  $listData;
-                }
-            }
-        }
+        //             $place[] =  $listData;
+        //         }
+        //     }
+        // }
         // dd($listData);
+        // $countPlace = count($place);
+
+        if ($jumlah_jalur > 1){
+            $place = $new_rute[0];
+        }else{
+            $place = $new_rute;
+        }
+        
         $countPlace = count($place);
 
         for ($i = 0; $i <= $countPlace - 1; $i++) {
@@ -263,8 +271,8 @@ class ClientController extends Controller
             $index_angkot = 0;
 
             $url = "https://maps.googleapis.com/maps/api/directions/json?";
-            $origins = "origin=".$place[$i]['pd_latitude'].",".$place[$i]['pd_longitude'];
-            $destination = "&destination=".$place[$i+1]['pd_latitude'].",".$place[$i+1]['pd_longitude'];
+            $origins = "origin=".$place[$i]['latitude'].",".$place[$i]['longitude'];
+            $destination = "&destination=".$place[$i+1]['latitude'].",".$place[$i+1]['longitude'];
             $key = "&key=".env("GMAPS_TOKEN");
             $client = new \GuzzleHttp\Client();
             // dd($url.$origins.$destination.$key);
@@ -273,8 +281,8 @@ class ClientController extends Controller
             // dd($res->getHeaderLine('content-type'));
             $res = json_decode($res->getBody(), true);
             
-            $group['latitude'] = $place[$i]['pd_latitude'];
-            $group['longitude'] = $place[$i]['pd_longitude'];
+            $group['latitude'] = $place[$i]['latitude'];
+            $group['longitude'] = $place[$i]['longitude'];
             
             if ($place[$i]['pd_name'] == $process['transit']['place_name'][$index_tempat]){
                 $index_tempat++;
@@ -299,7 +307,8 @@ class ClientController extends Controller
         $return_data['rute'] = json_encode($rute);
         $return_data['new_rute'] = json_encode($new_rute);
         $return_data['lokasi'] = $get_place;
-
+        $return_data['jumlah_jalur'] = $jumlah_jalur;
+        // dd($return_data['maps_detail']);
 
         return view('contentClient.client.ruteTerpendek', $return_data);
     }

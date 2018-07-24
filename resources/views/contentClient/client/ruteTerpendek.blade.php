@@ -10,12 +10,6 @@
     <div class="row bg-title">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <?php
-                // if (!empty($place_detail)){
-                //     $rute = json_decode($place_detail, true);
-                //     $count = count($rute);
-                //     $from_destination = $rute[0]['nama_daerah'];
-                //     $to_destination = $rute[$count - 1]['nama_daerah'];
-                // }
 
                 if (!empty($rute)){
                     $rute = json_decode($rute, true);
@@ -88,19 +82,16 @@
 <script type="text/javascript">
     /* tentukan lokasi tengah peta,
     titik awal tugu dan titik akhir ugm */
+    var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
 
     var data = '{{$maps_detail}}';
     data = data.replace('cHaNgE',"\\\\");
     data = JSON.parse(data.replace(/&quot;/g,'"'));
-    // console.log(data);
 
-    var node = '{{$place_detail}}';
-    node = JSON.parse(node.replace(/&quot;/g,'"'));
+    // var node = '{{json_encode($new_rute, true)}}';
+    // node = JSON.parse(node.replace(/&quot;/g,'"'));
 
     var tengahpeta = new google.maps.LatLng(data[0]['latitude'],data[0]['longitude']);
-
-    // var marker;
-    // var map;
 
     // Functi untuk decoding level encoding polyline 
     function decodeLevels(encodedLevelsString) {
@@ -118,7 +109,9 @@
     if (count($new_rute>0)){   
         foreach ($new_rute as $list){
     ?>
-    // function initialize_{{$index_rute_js}}() {
+        var node = '{{json_encode($list, true)}}';
+        node = JSON.parse(node.replace(/&quot;/g,'"'));
+
         var mapOptions_{{$index_rute_js}} = {
             zoom: 15,
             mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -128,15 +121,24 @@
         var map_{{$index_rute_js}} = new google.maps.Map(document.getElementById("map_canvas_{{$index_rute_js}}"),mapOptions_{{$index_rute_js}});
         
         jQuery.each( node, function( key, value ) {
-            var markerPoint = new google.maps.LatLng(value['pd_latitude'],value['pd_longitude']);
+
+            var markerPoint = new google.maps.LatLng(value['latitude'],value['longitude']);
             
             var infowindow = new google.maps.InfoWindow();
             
-            var information = value['pd_name']+'<br>';
+            var information = value['nama_tempat']+'<br>';
             if (value['status']=='pindah'){
-                information += 'pindah trayek '+value['nama_trayek']+'<br>';
+                information += 'Pindah trayek '+value['nama_angkot']+'<br>';
+                icon = 'caution.png';
+            }else if(value['status']=='tetap'){
+                information += 'Angkot tetap '+value['nama_angkot']+'<br>';
+                icon = 'cabs.png';
+            }else if (value['status']=='naik'){
+                information += 'Naik trayek '+value['nama_angkot']+'<br>';
+                icon = 'cabs.png';
             }else{
-                information += 'naik trayek '+value['nama_trayek']+'<br>';
+                information += 'Turun trayek '+value['nama_angkot']+'<br>';
+                icon = 'cabs.png';
             }
             /*maker */
             var marker = new google.maps.Marker({
@@ -144,7 +146,8 @@
                 draggable:false,
 
                 animation: google.maps.Animation.DROP,
-                position: markerPoint
+                position: markerPoint,
+                icon: iconBase + icon
             });
             google.maps.event.addListener(marker, 'click', (function(marker, i) {
                 return function() {
@@ -172,7 +175,6 @@
             /* gambarkan polyline di peta */
             Poly.setMap(map_{{$index_rute_js}});
         });
-    // }
     <?php
         $index_rute_js++;
         }
