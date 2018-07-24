@@ -150,8 +150,8 @@ class ClientController extends Controller
                     $rute[] = [
                         'nama_tempat' => $relation[$j]->details->pd_name,
                         'nama_angkot' => $relation[$j]->details_code->pc_name,
-                        'longitude' => $relation[$j]->details_destination->pd_longitude,
-                        'latitude' => $relation[$j]->details_destination->pd_latitude,
+                        'longitude' => $relation[$j]->details->pd_longitude,
+                        'latitude' => $relation[$j]->details->pd_latitude,
                         'status' => $status
                     ];
                     if ($i == $jumlah_jalan-2){
@@ -258,12 +258,8 @@ class ClientController extends Controller
         // dd($listData);
         // $countPlace = count($place);
 
-        if ($jumlah_jalur > 1){
-            $place = $new_rute[0];
-        }else{
-            $place = $new_rute;
-        }
-        
+
+        $place = $new_rute[0];
         $countPlace = count($place);
 
         for ($i = 0; $i <= $countPlace - 1; $i++) {

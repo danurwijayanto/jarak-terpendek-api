@@ -123,23 +123,37 @@
         jQuery.each( node, function( key, value ) {
 
             var markerPoint = new google.maps.LatLng(value['latitude'],value['longitude']);
-            
             var infowindow = new google.maps.InfoWindow();
             
             var information = value['nama_tempat']+'<br>';
             if (value['status']=='pindah'){
                 information += 'Pindah trayek '+value['nama_angkot']+'<br>';
-                icon = 'caution.png';
+                var icon = {
+                    url: iconBase + 'caution.png', // url
+                    scaledSize: new google.maps.Size(40, 40), // scaled size
+                };
             }else if(value['status']=='tetap'){
                 information += 'Angkot tetap '+value['nama_angkot']+'<br>';
-                icon = 'cabs.png';
+                var icon = {
+                    url: iconBase + 'cabs.png', // url
+                    scaledSize: new google.maps.Size(40, 40), // scaled size
+                };
             }else if (value['status']=='naik'){
                 information += 'Naik trayek '+value['nama_angkot']+'<br>';
-                icon = 'cabs.png';
+                var icon = {
+                    url: iconBase + 'cabs.png', // url
+                    scaledSize: new google.maps.Size(40, 40), // scaled size
+                };
+
             }else{
                 information += 'Turun trayek '+value['nama_angkot']+'<br>';
-                icon = 'cabs.png';
+
+                var icon = {
+                    url: iconBase + 'cabs.png', // url
+                    scaledSize: new google.maps.Size(40, 40), // scaled size
+                };
             }
+
             /*maker */
             var marker = new google.maps.Marker({
                 map:map_{{$index_rute_js}},
@@ -147,8 +161,9 @@
 
                 animation: google.maps.Animation.DROP,
                 position: markerPoint,
-                icon: iconBase + icon
+                icon: icon
             });
+
             google.maps.event.addListener(marker, 'click', (function(marker, i) {
                 return function() {
                     infowindow.setContent(information);
