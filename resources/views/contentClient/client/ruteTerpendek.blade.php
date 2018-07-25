@@ -11,11 +11,11 @@
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <?php
 
-                if (!empty($rute)){
-                    $rute = json_decode($rute, true);
-                    $count = count($rute);
-                    $from_destination = $rute[0]['nama_tempat'];
-                    $to_destination = $rute[$count - 1]['nama_tempat'];
+                if (!empty($new_rute)){
+                    $rute = json_decode($new_rute, true);
+                    $count = count($rute[0]);
+                    $from_destination = $rute[0][0]['nama_tempat'];
+                    $to_destination = $rute[0][$count - 1]['nama_tempat'];
                 }
             ?>
             <h3>Rute dari : {{ $from_destination }}  menuju : {{ $to_destination }}</h3> </div>
@@ -88,7 +88,7 @@
     data = data.replace('cHaNgE',"\\\\");
     data = JSON.parse(data.replace(/&quot;/g,'"'));
 
-    // var node = '{{json_encode($new_rute, true)}}';
+    // var node= '{{json_encode($new_rute, true)}}';
     // node = JSON.parse(node.replace(/&quot;/g,'"'));
 
     var tengahpeta = new google.maps.LatLng(data[0]['latitude'],data[0]['longitude']);

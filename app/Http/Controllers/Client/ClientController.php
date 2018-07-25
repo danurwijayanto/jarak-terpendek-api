@@ -97,9 +97,13 @@ class ClientController extends Controller
 
     public function calculate(Request $request){
         $process = ($this->algoritm_index($request));
+        
+        // Print table
+        // dd($process);
+        
         $group = array();
         $place = array();
-        // $rute = array();
+
         $new_rute = array();
         $temporary_new_rute = array();
         $angkot = '';
@@ -218,6 +222,7 @@ class ClientController extends Controller
         }
         $new_rute = $temporary_new_rute;
 
+        
         // End Mengholah Jalur dan Angkot yang bisa dilewati
         
         // foreach ($process['get_Distance'] as $data){
@@ -240,13 +245,13 @@ class ClientController extends Controller
         //                 $listData['nama_daerah'] = $data;
         //                 $listData['nama_trayek'] = $trayek;
         //                 $listData['status'] = $status;
-                        
+        
         //                 $place[] =  $listData;
         //             }
         //         }else{
         //             $trayek = isset($process['transit']['angkot'][0]) ? $process['transit']['angkot'][0] : '';
         //             $status = '';
-                    
+                
         //             $listData['nama_daerah'] = $data;
         //             $listData['nama_trayek'] = $trayek;
         //             $listData['status'] = $status;
@@ -257,11 +262,20 @@ class ClientController extends Controller
         // }
         // dd($listData);
         // $countPlace = count($place);
-
-
+        
+        
         $place = $new_rute[0];
         $countPlace = count($place);
 
+        // 5. List latitude Longitude untuk rute gmaps : FAIL DUDE !!
+        $coordinate = array();
+        foreach($place as $list){
+            $coordinate[] = [
+                "lat" => (float)$list['latitude'],
+                "lng" => (float)$list['longitude']
+            ];
+        }
+        
         for ($i = 0; $i <= $countPlace - 1; $i++) {
             $index_tempat = 0;
             $index_angkot = 0;
@@ -300,11 +314,11 @@ class ClientController extends Controller
         } 
         $return_data['maps_detail'] = json_encode($return_data['maps_detail']);
         $return_data['place_detail'] = json_encode($place);
-        $return_data['rute'] = json_encode($rute);
+        // $return_data['rute'] = json_encode($rute);
         $return_data['new_rute'] = json_encode($new_rute);
         $return_data['lokasi'] = $get_place;
         $return_data['jumlah_jalur'] = $jumlah_jalur;
-        // dd($return_data['maps_detail']);
+        $return_data['coordinate'] = json_encode($coordinate);
 
         return view('contentClient.client.ruteTerpendek', $return_data);
     }
