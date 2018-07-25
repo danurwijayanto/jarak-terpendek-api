@@ -219,6 +219,14 @@ class ClientController extends Controller
                     }
                 }
             }
+        }else{
+            for ($i=0; $i<$jumlah_jalur; $i++){
+                for ($j=1; $j<=$jumlah_jalan-2; $j++){
+                    if ($temporary_new_rute[$i][$j]['nama_angkot'] == $temporary_new_rute[$i][$j-1]['nama_angkot']){
+                        $temporary_new_rute[$i][$j]['status'] = 'tetap';
+                    }
+                }
+            }
         }
         $new_rute = $temporary_new_rute;
 

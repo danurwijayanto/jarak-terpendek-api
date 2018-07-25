@@ -190,6 +190,7 @@ trait Algoritm{
         echo ' | Dengan Jarak Tempuh ';
         $menit = round(($fw->get_distance($index_from,$index_destination)/40)*60,0);
         print_r($fw->get_distance($index_from,$index_destination));
-        echo " km yaitu $menit</strong>";
+        echo " km";
+        // echo " km yaitu $menit</strong>";
     }
 }
