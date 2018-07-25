@@ -71,7 +71,8 @@ trait Algoritm{
                     $place_from = PlaceDetails::where('pd_name', 'like', '%'.$value1.'%')->first();
                     $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$value.'%')->first();
                     
-                    $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.') or (pd_id = '.$place_dest->pd_id.' and pd_id_destination = '.$place_from->pd_id.')')->first();
+                    // $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.') or (pd_id = '.$place_dest->pd_id.' and pd_id_destination = '.$place_from->pd_id.')')->first();
+                    $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.')')->first();
                     
                     if (count($relation) > 0){
                         $dataf = $relation->distance;
@@ -92,7 +93,8 @@ trait Algoritm{
                     $place_from = PlaceDetails::where('pd_name', 'like', '%'.$value1.'%')->first();
                     $place_dest = PlaceDetails::where('pd_name', 'like', '%'.$value.'%')->first();
                     
-                    $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.') or (pd_id = '.$place_dest->pd_id.' and pd_id_destination = '.$place_from->pd_id.')')->first();
+                    // $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.') or (pd_id = '.$place_dest->pd_id.' and pd_id_destination = '.$place_from->pd_id.')')->first();
+                    $relation = CodeDetails::whereRaw('(pd_id = '.$place_from->pd_id.' and pd_id_destination = '.$place_dest->pd_id.')')->first();
                     
                     if (count($relation) > 0){
                         $dataf = $relation->distance;
@@ -150,13 +152,12 @@ trait Algoritm{
         $fw = new FloydWarshall($graph, $nodes);
     
         $sp = $fw->get_path($index_from,$index_destination);
-        
         // Print Table
         // echo 'Ruter Terdekat Dari Start '.$nodes[$index_from].' Ke '.$nodes[$index_destination].' Adalah: <strong>';
         
         $jl = count($sp);
         $r=1;
-
+        
         $final_node = array();
 
         foreach ($sp as $value) {
@@ -174,9 +175,18 @@ trait Algoritm{
                 // echo ' => ';
             }
             $r++;
-                
+            
         }
+        // Uncoment for debug
         return $final_node;
+
+        // Debug Purpose
+        // print_r($fw->get_distance($index_from,$index_destination));
+        print_r($fw->print_graph());
+        print_r($fw->print_dist());
+        print_r($fw->print_pred());
+
+
         echo ' | Dengan Jarak Tempuh ';
         $menit = round(($fw->get_distance($index_from,$index_destination)/40)*60,0);
         print_r($fw->get_distance($index_from,$index_destination));
